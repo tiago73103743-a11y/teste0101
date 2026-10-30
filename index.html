@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>Loja - Compre Agora</title>
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        :root {
+            --bg-imagem: url('sorvete/fundo-cabecalho.jpg');
+        }
+        body {
+            background: linear-gradient(rgba(255,255,255, 0.85), rgba(255,255,255, 0.85)), var(--bg-imagem);
+            background-attachment: fixed;
+            background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat;
+            min-height: 100vh;
+        }
+        .whatsapp-float {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 1000;
+            background-color: #25d366;
+            color: white;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transition: transform 0.2s ease;
+        }
+        .whatsapp-float:hover {
+            transform: scale(1.1);
+            color: white;
+        }
+        .btn-success {
+            background-color: #25d366;
+            border-color: #25d366;
+        }
+        .btn-success:hover {
+            background-color: #20ba5a;
+            border-color: #20ba5a;
+        }
+        .admin-secreto {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            opacity: 0;
+            z-index: 99;
+        }
+        .painel-adm {
+            display: none;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+        .admin-logado .painel-adm {
+            display: block;
+        }
+        .foto-produto {
+            position: relative;
+            overflow: hidden;
+            border-radius: 8px 8px 0 0;
+            height: 180px;
+            width: 100%;
+        }
+        .foto-produto img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            transition: transform 0.3s ease;
+        }
+        .foto-produto:hover img {
+            transform: scale(1.03);
+        }
+        .btn-trocar-foto {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            display: none;
+            z-index: 10;
+        }
+        .admin-logado .btn-trocar-foto {
+            display: block;
+        }
+        .painel-tamanho-foto {
+            margin-top: 0.5rem;
+            display: none;
+        }
+        .admin-logado .painel-tamanho-foto {
+            display: block;
+        }
+        .input-tamanho-foto {
+            max-width: 80px;
+            display: inline-block;
+        }
+        .estoque-badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+        .estoque-normal { background: #d1e7dd; color: #0f5132; }
+        .estoque-baixo { background: #fff3cd; color: #856404; }
+        .estoque-esgotado { background: #f8d7da; color: #842029; }
+        .btn-editar, .btn-excluir { display: none; }
+        .admin-logado .btn-editar, .admin-logado .btn-excluir { display: inline-block; }
+        .cabecalho-fundo {
+            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), var(--bg-imagem);
+            background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat;
+        }
+        .btn-trocar-cabecalho {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            display: none;
+            z-index: 10;
+        }
+        .admin-logado .btn-trocar-cabecalho {
+            display: block;
+        }
+        .frete-option {
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .frete-option:hover, .frete-option.selected {
+            border-color: #25d366;
+            background-color: #f0fff4;
+        }
+        .area-qr-admin {
+            display: none;
+            margin: 1rem 0;
+            padding: 1rem;
+            background: #e8f5e9;
+            border-radius: 8px;
+            border: 1px solid #c8e6c9;
+        }
+        .admin-logado .area-qr-admin {
+            display: block;
+        }
+        .pix-copia {
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .pix-copia:hover {
+            background-color: #d4edda !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-secreto" onclick="abrirModalSenhaAdm()"></div>
+    <a href="https://wa.me/5531973124354" target="_blank" class="whatsapp-float" title="Fale pelo WhatsApp">
+        <i class="bi bi-whatsapp"></i>
+    </a>
+    
+    <header id="cabecalhoPrincipal" class="cabecalho-fundo py-5">
+        <div class="container px-4 px-lg-5 position-relative">
+            <button type="button" class="btn btn-sm btn-light btn-trocar-cabecalho"
+                    onclick="document.getElementById('inputCabecalhoFoto').click()">
+                <i class="bi bi-image"></i> Trocar Fundo
+            </button>
+            <input type="file" id="inputCabecalhoFoto" accept="image/*" class="d-none"
+                   onchange="trocarFundoCabecalho(event)">
+            
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center gap-4">
+                    <img id="logoLoja" src="sorvete/log.jpeg" alt="Logotipo" class="img-fluid rounded-circle" style="max-width: 100px;">
+                    <div class="text-white">
+                        <h1 class="display-4 fw-bolder">Compre com estilo</h1>
+                        <p class="lead fw-normal text-white-50 mb-0">Os melhores produtos pra você — compra rápida!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <section class="py-3 bg-light border-bottom">
+        <div class="container px-4 px-lg-5">
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="input-group input-group-lg">
+                        <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
+                        <input type="text" id="buscaProdutos" class="form-control border-start-0" 
+                               placeholder="Buscar produtos..." oninput="filtrarProdutos(this.value)">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <section class="py-5">
+        <div class="container px-4 px-lg-5 mt-5">
+            <h2 class="text-center mb-4">Nossos Produtos</h2>
+            <div id="painelAdm" class="painel-adm">
+                <div class="d-flex align-items-center justify-content-between">
+                    <h5 class="mb-0"><i class="bi bi-gear-wide-connected me-2"></i>Painel Administrativo</h5>
+                    <button id="btnAdicionarProduto" class="btn btn-success" onclick="adicionarNovoProduto()">
+                        <i class="bi bi-plus-lg me-1"></i> Adicionar Produto
+                    </button>
+                </div>
+            </div>
+            <div id="listaProdutos" class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
+            </div>
+        </div>
+    </section>
+    <!-- MODAL DE COMPRA -->
+    <div class="modal fade" id="modalCompra" tabindex="-1" aria-labelledby="modalCompraLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title" id="modalCompraLabel">
+                        <i class="bi bi-cart-check me-2"></i>Finalizar Compra
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h6 class="fw-bold">Produto</h6>
+                            <p class="mb-1" id="nomeProdutoCompra"></p>
+                            <p class="mb-0">Valor: <strong id="valorProdutoCompra"></strong></p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="fw-bold">Escolha o frete</h6>
+                            <div class="frete-option mb-2" data-valor="0" data-nome="Retirada no Local" onclick="selecionarFrete(this)">
+                                <input type="radio" name="frete" id="frete1" class="d-none" checked>
+                                <label for="frete1" class="mb-0 w-100 cursor-pointer">
+                                    <i class="bi bi-shop me-2"></i> Retirada no Local — <strong class="text-success">Grátis</strong>
+                                </label>
+                            </div>
+                           
+                            <div class="frete-option" data-valor="8.90" data-nome="Correios" onclick="selecionarFrete(this)">
+                                <input type="radio" name="frete" id="frete3" class="d-none">
+                                <label for="frete3" class="mb-0 w-100 cursor-pointer">
+                                    <i class="bi bi-box me-2"></i> Correios — R$ 8,90
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <p class="mb-1">Subtotal: <span id="subtotalCompra" class="fw-bold"></span></p>
+                            <p class="mb-1">Frete: <span id="valorFreteSelecionado" class="fw-bold"></span></p>
+                            <p class="h5 fw-bold">Total: <span id="totalCompra" class="text-success"></span></p>
+                            <p class="text-success mt-2"><i class="bi bi-tag-fill me-1"></i> À vista no PIX: <strong id="valorPix"></strong> (5% de desconto)</p>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <!-- ÁREA PIX VISÍVEL AO CLIENTE -->
+                    <div class="card bg-light mb-3">
+                        <div class="card-body">
+                            <h6 class="fw-bold text-success mb-3"><i class="bi bi-qr-code-scan me-2"></i>Pagamento via PIX</h6>
+                            
+                            <!-- QR Code PIX -->
+                            <div class="text-center mb-3" id="areaQrCodePix">
+                                <p class="text-muted">Cadastre o QR Code nas configurações</p>
+                            </div>
+                            
+                            <!-- Chave PIX copiável -->
+                            <div class="mb-2">
+                                <label class="form-label fw-bold">Chave PIX:</label>
+                                <div class="input-group pix-copia border rounded bg-white" onclick="copiarChavePix()">
+                                    <span class="form-control bg-white border-0" id="exibeChavePix">Não cadastrada</span>
+                                    <button class="btn btn-outline-success" type="button" title="Copiar chave">
+                                        <i class="bi bi-clipboard"></i> Copiar
+                                    </button>
+                                </div>
+                                <small class="text-muted">Nome: <span id="exibeNomePix">Não cadastrado</span></small>
+                            </div>
+                            
+                            <!-- Área de edição só visível para admin -->
+                            <div class="area-qr-admin mt-3">
+                                <p class="mb-2 fw-bold text-success"><i class="bi bi-pencil-square me-1"></i>Administrador — Edição Rápida:</p>
+                                <div class="mb-2">
+                                    <input type="text" id="chavePixRapida" class="form-control form-control-sm" 
+                                           placeholder="Cole sua chave PIX aqui">
+                                </div>
+                                <button class="btn btn-sm btn-success" onclick="salvarChavePixRapida()">
+                                    <i class="bi bi-check-lg"></i> Salvar Chave
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Botão PayPal -->
+                    <div class="mt-4">
+                        <h6 class="fw-bold mb-2">Ou pague com PayPal:</h6>
+                        <div id="paypal-button-container"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- MODAL SENHA ADM -->
+    <div class="modal fade" id="modalSenhaAdm" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title"><i class="bi bi-shield-lock me-2"></i>Acesso Restrito</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-3">Digite a senha de administração:</p>
+                    <div class="mb-3">
+                        <input type="password" class="form-control" id="senhaAdm" placeholder="Senha" 
+                               onkeypress="if(event.key==='Enter')verificarSenhaAdm()">
+                    </div>
+                    <div id="erroSenha" class="alert alert-danger d-none">Senha incorreta!</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- MODAL CONFIGURAÇÕES -->
+    <div class="modal fade" id="modalConfigLoja" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title"><i class="bi bi-gear me-2"></i>Configurações da Loja</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Máximo de parcelas sem juros</label>
+                        <input type="number" id="configMaxParcelas" class="form-control" min="1" max="24" value="12">
+                    </div>
+                    <hr>
+                    <h6 class="fw-bold mb-2">Dados do PIX</h6>
+                    <div class="mb-2">
+                        <label class="form-label">Chave PIX</label>
+                        <input type="text" id="configChavePix" class="form-control" placeholder="Digite sua chave PIX aqui">
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Nome do recebedor</label>
+                        <input type="text" id="configNomePix" class="form-control" placeholder="Digite seu nome completo">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Foto QR Code PIX</label>
+                        <input type="file" id="qrCodePixImagem" accept="image/*" class="form-control" onchange="salvarQrCodePix(event)">
+                        <small class="text-muted">Selecione a imagem do seu QR Code do PIX</small>
+                    </div>
+                    
+                    <hr>
+                    <h6 class="fw-bold mb-2">Dados Bancários / Transferência</h6>
+                    <div class="mb-2">
+                        <label class="form-label">Nome do Banco</label>
+                        <input type="text" id="configBanco" class="form-control" placeholder="Nome do banco">
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Agência</label>
+                        <input type="text" id="configAgencia" class="form-control" placeholder="Nº da agência">
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Conta</label>
+                        <input type="text" id="configConta" class="form-control" placeholder="Nº da conta">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Titular</label>
+                        <input type="text" id="configTitular" class="form-control" placeholder="Nome completo">
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button class="btn btn-primary" onclick="salvarConfiguracoes()">
+                            <i class="bi bi-check-lg me-1"></i> Salvar Configurações
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <button id="btnConfigLoja" class="btn btn-primary position-fixed bottom-3 end-3 d-none" onclick="abrirConfigLoja()">
+        <i class="bi bi-gear"></i> Configurações
+    </button>
+    <footer class="py-5 bg-dark">
+        <div class="container">
+            <p class="m-0 text-center text-white">Copyright &copy; Pequenos Estilos 2026</p>
+        </div>
+    </footer>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://www.paypal.com/sdk/js?client-id=COLOQUE_SEU_CLIENT_ID_AQUI&currency=BRL&locale=pt_BR"></script>
+    
+    <script>
+        const SENHA_ADM = "admin123";
+        const ESTOQUE_PADRAO = 50;
+        const FOTO_PADRAO = "sorvete/Três-tipos-e-sabores-de-sorvete-diferentes-1.jpg.webp";
+        const DESCONTO_PIX = 0.05;
+        
+        let modoAdmAtivo = false;
+        let proximoId = 1;
+        let produtos = {};
+        let produtoAtual = null;
+        let freteSelecionado = { valor: 0, nome: "Retirada no Local" };
+        let totalCompra = 0;
+        let paypalCarregado = false;
+        
+        let configLoja = {
+            maxParcelas: 12,
+            pix: { chave: "", nome: "", qrCodeImagem: "" },
+            banco: { nome: "", agencia: "", conta: "", titular: "" }
+        };
+        
+        function formatarMoeda(valor) {
+            if (valor === null || valor === undefined || isNaN(valor)) return '';
+            return 'R$ ' + Number(valor).toFixed(2).replace('.', ',');
+        }
+        
+        function carregarFundoCabecalho() {
+            const fundoSalvo = localStorage.getItem('fundoCabecalho');
+            if (fundoSalvo) {
+                document.documentElement.style.setProperty('--bg-imagem', `url('${fundoSalvo}')`);
+            }
+        }
+        
+        function trocarFundoCabecalho(event) {
+            if (!modoAdmAtivo) return alert('Apenas administrador pode alterar!');
+            const arquivo = event.target.files[0];
+            if (!arquivo) return;
+            const leitor = new FileReader();
+            leitor.onload = e => {
+                const novaImagem = e.target.result;
+                document.documentElement.style.setProperty('--bg-imagem', `url('${novaImagem}')`);
+                localStorage.setItem('fundoCabecalho', novaImagem);
+                alert('✅ Fundo atualizado!');
+            };
+            leitor.readAsDataURL(arquivo);
+            event.target.value = '';
+        }
+        
+        // Salvar chave PIX rapidamente dentro do modal
+        function salvarChavePixRapida() {
+            if (!modoAdmAtivo) return alert('❌ Apenas administrador!');
+            const chave = document.getElementById('chavePixRapida').value.trim();
+            if (!chave) return alert('Digite a chave primeiro!');
+            configLoja.pix.chave = chave;
+            localStorage.setItem("configLoja", JSON.stringify(configLoja));
+            atualizarExibicaoDados();
+            alert("✅ Chave PIX salva!");
+        }
+        
+        // Salvar QR Code via modal de configurações
+        function salvarQrCodePix(event) {
+            const arquivo = event.target.files[0];
+            if (!arquivo) return;
+            const leitor = new FileReader();
+            leitor.onload = e => {
+                configLoja.pix.qrCodeImagem = e.target.result;
+                localStorage.setItem("configLoja", JSON.stringify(configLoja));
+                atualizarExibicaoDados();
+                alert("✅ QR Code salvo com sucesso!");
+            };
+            leitor.readAsDataURL(arquivo);
+        }
+        
+        // Carregar configurações salvas
+        function carregarConfiguracoes() {
+            const salvas = localStorage.getItem("configLoja");
+            if (salvas) configLoja = JSON.parse(salvas);
+            document.getElementById("configMaxParcelas").value = configLoja.maxParcelas;
+            document.getElementById("configChavePix").value = configLoja.pix.chave;
+            document.getElementById("configNomePix").value = configLoja.pix.nome;
+            document.getElementById("configBanco").value = configLoja.banco.nome;
+            document.getElementById("configAgencia").value = configLoja.banco.agencia;
+            document.getElementById("configConta").value = configLoja.banco.conta;
+            document.getElementById("configTitular").value = configLoja.banco.titular;
+            atualizarExibicaoDados();
+        }
+        
+        // Salvar todas as configurações
+        function salvarConfiguracoes() {
+            configLoja.maxParcelas = parseInt(document.getElementById("configMaxParcelas").value) || 1;
+            configLoja.pix.chave = document.getElementById("configChavePix").value.trim();
+            configLoja.pix.nome = document.getElementById("configNomePix").value.trim();
+            configLoja.banco.nome = document.getElementById("configBanco").value.trim();
+            configLoja.banco.agencia = document.getElementById("configAgencia").value.trim();
+            configLoja.banco.conta = document.getElementById("configConta").value.trim();
+            configLoja.banco.titular = document.getElementById("configTitular").value.trim();
+            localStorage.setItem("configLoja", JSON.stringify(configLoja));
+            atualizarExibicaoDados();
+            alert("✅ Configurações salvas!");
+            bootstrap.Modal.getInstance(document.getElementById('modalConfigLoja')).hide();
+        }
+        
+        // Atualizar o que o cliente vê
+        function atualizarExibicaoDados() {
+            const areaQr = document.getElementById("areaQrCodePix");
+            if (areaQr) {
+                if (configLoja.pix.qrCodeImagem) {
+                    areaQr.innerHTML = `
+                        <img src="${configLoja.pix.qrCodeImagem}" alt="QR Code PIX" 
+                             style="max-width: 220px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                        <p class="mt-2 text-muted small">Escaneie com a câmera do celular</p>
+                    `;
+                } else {
+                    areaQr.innerHTML = `<p class="text-muted">Cadastre o QR Code nas configurações</p>`;
+                }
+            }
+            
+            document.getElementById("exibeChavePix").textContent = configLoja.pix.chave || "Não cadastrada";
+            document.getElementById("exibeNomePix").textContent = configLoja.pix.nome || "Não cadastrado";
+            // Preencher campo rápido de edição
+            const campoRapido = document.getElementById("chavePixRapida");
+            if (campoRapido && configLoja.pix.chave) {
+                campoRapido.value = configLoja.pix.chave;
+            }
+        }
+        
+        function abrirConfigLoja() {
+            carregarConfiguracoes();
+            new bootstrap.Modal(document.getElementById('modalConfigLoja')).show();
+        }
+        
+        function copiarChavePix() {
+            if (!configLoja.pix.chave) return alert("Cadastre a chave PIX nas configurações primeiro!");
+            navigator.clipboard.writeText(configLoja.pix.chave).then(() => alert("✅ Chave copiada! Pode colar no app do banco."));
+        }
+        
+        function getClasseEstoque(qtd) {
+            if (qtd === 0) return 'estoque-esgotado';
+            if (qtd <= 5) return 'estoque-baixo';
+            return 'estoque-normal';
+        }
+        
+        function getTextoEstoque(qtd) {
+            if (qtd === 0) return '<i class="bi bi-x-circle"></i> Esgotado!';
+            if (qtd <= 5) return `<i class="bi bi-exclamation-triangle"></i> Pouco disponível: ${qtd}`;
+            return `<i class="bi bi-box-seam"></i> Disponível: ${qtd}`;
+        }
+        
+        function criarTemplateProduto(id) {
+            const p = produtos[id];
+            const precoAntigoHTML = p.precoAntigo 
+                ? `<span id="precoAntigo${id}" class="text-muted text-decoration-line-through me-1">${formatarMoeda(p.precoAntigo)}</span>`
+                : '';
+            return `
+            <div class="col mb-5 produto-card" id="colunaProduto${id}">
+                <div class="card h-100">
+                    <div class="foto-produto" id="containerFoto${id}" style="height:${p.alturaFoto}px;">
+                        <img id="imgProduto${id}" src="${p.foto}" alt="Produto" 
+                             style="height:100%;object-fit:${p.ajusteFoto};" />
+                        <button type="button" class="btn btn-sm btn-dark btn-trocar-foto"
+                                onclick="document.getElementById('inputNovaFoto${id}').click()">
+                            <i class="bi bi-camera"></i> Trocar
+                        </button>
+                        <input type="file" id="inputNovaFoto${id}" accept="image/*" class="d-none"
+                               onchange="trocarFoto(event, 'imgProduto${id}', ${id})">
+                    </div>
+                    <div class="painel-tamanho-foto px-3">
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <label class="form-label mb-0 small">Altura:</label>
+                            <input type="number" class="form-control form-control-sm input-tamanho-foto" 
+                                   id="alturaFoto${id}" value="${p.alturaFoto}" min="80" max="400"
+                                   onchange="aplicarTamanhoFoto(${id})">
+                            <span class="small">px</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <label class="form-label mb-0 small">Modo:</label>
+                            <select class="form-select form-select-sm" id="modoAjuste${id}"
+                                    onchange="aplicarTamanhoFoto(${id})">
+                                <option value="cover" ${p.ajusteFoto==='cover'?'selected':''}>Cortar</option>
+                                <option value="contain" ${p.ajusteFoto==='contain'?'selected':''}>Ajustar</option>
+                                <option value="fill" ${p.ajusteFoto==='fill'?'selected':''}>Preencher</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="text-center">
+                            <h5 class="fw-bolder" id="nomeProduto${id}">${p.nome}</h5>
+                            <div class="d-flex justify-content-center gap-2 mb-2">
+                                <button type="button" class="btn btn-outline-secondary btn-sm btn-editar"
+                                        onclick="editarCampo('nomeProduto${id}', ${id})">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button type="button" class="btn btn-outline-danger btn-sm btn-excluir"
+                                        onclick="excluirProduto(${id})">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                            <div class="mb-2">
+                                <span id="badgeEstoque${id}" class="estoque-badge ${getClasseEstoque(p.estoque)}">
+                                    ${getTextoEstoque(p.estoque)}
+                                </span>
+                            </div>
+                            ${precoAntigoHTML}
+                            <strong id="precoAtual${id}" class="fs-5 text-success">
+                                ${formatarMoeda(p.precoAtual)}
+                            </strong>
+                            <div class="mt-2">
+                                <button type="button" class="btn btn-outline-secondary btn-sm btn-editar me-1"
+                                        onclick="editarPrecos(${id})">Preços</button>
+                                <button type="button" class="btn btn-outline-secondary btn-sm btn-editar"
+                                        onclick="editarEstoque(${id})">Estoque</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
+                        <div class="text-center">
+                            <button class="btn btn-success w-100" onclick="abrirModalCompra(${id})">
+                                <i class="bi bi-cart3 me-1"></i> Comprar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+        }
+        
+        function salvarProdutoNoStorage(id) {
+            const p = produtos[id];
+            localStorage.setItem(`produto${id}Nome`, p.nome);
+            localStorage.setItem(`produto${id}PrecoAtual`, p.precoAtual);
+            if (p.precoAntigo !== null) {
+                localStorage.setItem(`produto${id}PrecoAntigo`, p.precoAntigo);
+                localStorage.setItem(`produto${id}TemAntigo`, 'sim');
+            } else {
+                localStorage.setItem(`produto${id}TemAntigo`, 'nao');
+                localStorage.removeItem(`produto${id}PrecoAntigo`);
+            }
+            localStorage.setItem(`produto${id}Estoque`, p.estoque);
+            localStorage.setItem(`produto${id}Foto`, p.foto);
+            localStorage.setItem(`produto${id}AlturaFoto`, p.alturaFoto);
+            localStorage.setItem(`produto${id}ModoAjuste`, p.ajusteFoto);
+            localStorage.setItem('ultimoIdProduto', String(proximoId - 1));
+        }
+        
+        function carregarProdutoDoStorage(id) {
+            const prefix = `produto${id}`;
+            const nome = localStorage.getItem(`${prefix}Nome`);
+            if (!nome) return false;
+            const temAntigo = localStorage.getItem(`${prefix}TemAntigo`) === 'sim';
+            produtos[id] = {
+                nome: nome,
+                precoAtual: parseFloat(localStorage.getItem(`${prefix}PrecoAtual`) || '0'),
+                precoAntigo: temAntigo ? parseFloat(localStorage.getItem(`${prefix}PrecoAntigo`) || '0') : null,
+                estoque: parseInt(localStorage.getItem(`${prefix}Estoque`) || String(ESTOQUE_PADRAO), 10),
+                foto: localStorage.getItem(`${prefix}Foto`) || FOTO_PADRAO,
+                alturaFoto: parseInt(localStorage.getItem(`${prefix}AlturaFoto`) || '180', 10),
+                ajusteFoto: localStorage.getItem(`${prefix}ModoAjuste`) || 'cover'
+            };
+            return true;
+        }
+        
+        function recarregarTodosProdutos() {
+            document.getElementById('listaProdutos').innerHTML = '';
+            let maxId = 0;
+            for (let i = 1; i <= 100; i++) {
+                if (carregarProdutoDoStorage(i)) {
+                    document.getElementById('listaProdutos').insertAdjacentHTML('beforeend', criarTemplateProduto(i));
+                    maxId = i;
+                }
+            }
+            proximoId = maxId + 1;
+        }
+        
+        function aplicarTamanhoFoto(id) {
+            if (!modoAdmAtivo) return alert('❌ Somente administrador!');
+            const altura = document.getElementById(`alturaFoto${id}`).value;
+            const modo = document.getElementById(`modoAjuste${id}`).value;
+            const container = document.getElementById(`containerFoto${id}`);
+            const img = document.getElementById(`imgProduto${id}`);
+            container.style.height = altura + 'px';
+            img.style.objectFit = modo;
+            produtos[id].alturaFoto = parseInt(altura);
+            produtos[id].ajusteFoto = modo;
+            salvarProdutoNoStorage(id);
+        }
+        
+        function adicionarNovoProduto() {
+            if (!modoAdmAtivo) return alert('❌ Acesso restrito!');
+            const nome = prompt('Nome do produto:');
+            if (!nome || !nome.trim()) return;
+            const precoAtual = prompt('Preço atual (ex: 10,00):');
+            if (!precoAtual) return;
+            const precoAntigo = prompt('Preço antigo — DEIXE EM BRANCO SE NÃO TIVER:');
+            if (precoAntigo === null) return;
+            const estoque = prompt('Quantidade em estoque:', ESTOQUE_PADRAO.toString());
+            if (estoque === null) return;
+            const novoId = proximoId++;
+            produtos[novoId] = {
+                nome: nome.trim(),
+                precoAtual: parseFloat(precoAtual.replace(',', '.')),
+                precoAntigo: precoAntigo?.trim() ? parseFloat(precoAntigo.replace(',', '.')) : null,
+                estoque: parseInt(estoque, 10),
+                foto: FOTO_PADRAO,
+                alturaFoto: 180,
+                ajusteFoto: 'cover'
+            };
+            salvarProdutoNoStorage(novoId);
+            document.getElementById('listaProdutos').insertAdjacentHTML('beforeend', criarTemplateProduto(novoId));
+            alert(`✅ "${nome}" adicionado!`);
+        }
+        
+        function excluirProduto(id) {
+            if (!modoAdmAtivo) return;
+            if (!confirm(`Excluir "${produtos[id].nome}"?`)) return;
+            document.getElementById(`colunaProduto${id}`).remove();
+            Object.keys(localStorage).forEach(chave => {
+                if (chave.startsWith(`produto${id}`)) localStorage.removeItem(chave);
+            });
+            delete produtos[id];
+            alert('✅ Excluído!');
+        }
+        
+        function editarCampo(elId, id) {
+            if (!modoAdmAtivo) return;
+            const novo = prompt('Novo nome:', produtos[id].nome);
+            if (!novo) return;
+            produtos[id].nome = novo.trim();
+            salvarProdutoNoStorage(id);
+            document.getElementById(elId).textContent = novo;
+        }
+        
+        window.editarPrecos = function(id) {
+            if (!modoAdmAtivo) return;
+            const p = produtos[id];
+            const antigo = prompt('Preço antigo — DEIXE EM BRANCO PARA REMOVER:', 
+                p.precoAntigo ? p.precoAntigo.toFixed(2).replace('.', ',') : '');
+            if (antigo === null) return;
+            const atual = prompt('Preço atual:', p.precoAtual.toFixed(2).replace('.', ','));
+            if (!atual) return;
+            p.precoAntigo = antigo.trim() ? parseFloat(antigo.replace(',', '.')) : null;
+            p.precoAtual = parseFloat(atual.replace(',', '.'));
+            salvarProdutoNoStorage(id);
+            recarregarTodosProdutos();
+        };
+        
+        function editarEstoque(id) {
+            if (!modoAdmAtivo) return;
+            const qtd = prompt('Nova quantidade:', produtos[id].estoque);
+            if (!qtd) return;
+            produtos[id].estoque = parseInt(qtd);
+            salvarProdutoNoStorage(id);
+            recarregarTodosProdutos();
+        }
+        
+        function trocarFoto(event, imgId, id) {
+            if (!modoAdmAtivo) return alert('Apenas administrador!');
+            const arq = event.target.files[0];
+            if (!arq) return;
+            const leitor = new FileReader();
+            leitor.onload = e => {
+                document.getElementById(imgId).src = e.target.result;
+                produtos[id].foto = e.target.result;
+                salvarProdutoNoStorage(id);
+                alert('✅ Foto atualizada!');
+            };
+            leitor.readAsDataURL(arq);
+            event.target.value = '';
+        }
+        
+        function abrirModalSenhaAdm() {
+            new bootstrap.Modal(document.getElementById('modalSenhaAdm')).show();
+        }
+        
+        function verificarSenhaAdm() {
+            if (document.getElementById('senhaAdm').value === SENHA_ADM) {
+                modoAdmAtivo = true;
+                document.body.classList.add('admin-logado');
+                document.getElementById("btnConfigLoja").classList.remove("d-none");
+                carregarConfiguracoes();
+                bootstrap.Modal.getInstance(document.getElementById('modalSenhaAdm')).hide();
+                alert('✅ Modo administrador ativado!');
+            } else {
+                document.getElementById('erroSenha').classList.remove('d-none');
+            }
+        }
+        
+        function filtrarProdutos(termo) {
+            termo = termo.toLowerCase().trim();
+            document.querySelectorAll('.produto-card').forEach(card => {
+                const id = card.id.replace('colunaProduto', '');
+                card.style.display = produtos[id].nome.toLowerCase().includes(termo) ? 'block' : 'none';
+            });
+        }
+        
+        function inicializarPayPal() {
+            if (paypalCarregado || !produtoAtual || typeof paypal === 'undefined') return;
+            
+            paypal.Buttons({
+                style: { layout: 'vertical', color: 'gold', shape: 'rect', label: 'pay' },
+                createOrder: (data, actions) => {
+                    return actions.order.create({
+                        purchase_units: [{
+                            description: produtoAtual.nome,
+                            amount: { value: totalCompra.toFixed(2), currency_code: 'BRL' }
+                        }]
+                    });
+                },
+                onApprove: async (data, actions) => {
+                    const resultado = await actions.order.capture();
+                    alert(`✅ Pagamento confirmado! Obrigado(a)!\n\nID: ${resultado.id}`);
+                    console.log('Pagamento aprovado:', resultado);
+                    bootstrap.Modal.getInstance(document.getElementById('modalCompra')).hide();
+                },
+                onError: (erro) => {
+                    console.error('Erro no PayPal:', erro);
+                    alert('❌ Ocorreu um erro. Tente novamente ou pague por PIX.');
+                }
+            }).render('#paypal-button-container');
+            
+            paypalCarregado = true;
+        }
+        
+        function abrirModalCompra(id) {
+            produtoAtual = produtos[id];
+            freteSelecionado = { valor: 0, nome: "Retirada no Local" };
+            document.getElementById('nomeProdutoCompra').textContent = produtoAtual.nome;
+            document.getElementById('valorProdutoCompra').textContent = formatarMoeda(produtoAtual.precoAtual);
+            
+            document.querySelectorAll('.frete-option').forEach(el => {
+                el.classList.remove('selected');
+                el.querySelector('input').checked = false;
+            });
+            document.querySelector('.frete-option[data-valor="0"]').classList.add('selected');
+            document.querySelector('#frete1').checked = true;
+            
+            calcularTotal();
+            atualizarExibicaoDados();
+            new bootstrap.Modal(document.getElementById('modalCompra')).show();
+            
+            // Reinicializar botão PayPal
+            paypalCarregado = false;
+            document.getElementById('paypal-button-container').innerHTML = '';
+            setTimeout(() => {
+                if (!paypalCarregado) inicializarPayPal();
+            }, 100);
+        }
+        
+        function selecionarFrete(elemento) {
+            document.querySelectorAll('.frete-option').forEach(el => {
+                el.classList.remove('selected');
+                el.querySelector('input').checked = false;
+            });
+            elemento.classList.add('selected');
+            elemento.querySelector('input').checked = true;
+            freteSelecionado.valor = parseFloat(elemento.dataset.valor);
+            freteSelecionado.nome = elemento.dataset.nome;
+            calcularTotal();
+        }
+        
+        function calcularTotal() {
+            totalCompra = produtoAtual.precoAtual + freteSelecionado.valor;
+            document.getElementById('subtotalCompra').textContent = formatarMoeda(produtoAtual.precoAtual);
+            document.getElementById('valorFreteSelecionado').textContent = formatarMoeda(freteSelecionado.valor);
+            document.getElementById('totalCompra').textContent = formatarMoeda(totalCompra);
+            document.getElementById('valorPix').textContent = formatarMoeda(totalCompra * (1 - DESCONTO_PIX));
+            atualizarExibicaoDados();
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            carregarFundoCabecalho();
+            carregarConfiguracoes();
+            const ultimoId = parseInt(localStorage.getItem('ultimoIdProduto') || '0', 10);
+            proximoId = ultimoId + 1;
+            for (let id = 1; id <= ultimoId; id++) {
+                if (carregarProdutoDoStorage(id)) {
+                    document.getElementById('listaProdutos').insertAdjacentHTML('beforeend', criarTemplateProduto(id));
+                }
+            }
+        });
+    </script>
+</body>
+</html>
