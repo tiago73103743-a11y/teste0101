@@ -7,6 +7,10 @@
     <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    
+    <!-- Mercado Pago SDK -->
+    <script src="https://sdk.mercadopago.com/js/v2"></script>
+    
     <style>
         :root {
             --bg-imagem: url('sorvete/fundo-cabecalho.jpg');
@@ -47,6 +51,16 @@
         .btn-success:hover {
             background-color: #20ba5a;
             border-color: #20ba5a;
+        }
+        .btn-mercadopago {
+            background-color: #009ee3;
+            border-color: #009ee3;
+            color: white;
+        }
+        .btn-mercadopago:hover {
+            background-color: #008ed6;
+            border-color: #008ed6;
+            color: white;
         }
         .admin-secreto {
             position: fixed;
@@ -220,6 +234,7 @@
             </div>
         </div>
     </section>
+
     <!-- MODAL DE COMPRA -->
     <div class="modal fade" id="modalCompra" tabindex="-1" aria-labelledby="modalCompraLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
@@ -245,7 +260,6 @@
                                     <i class="bi bi-shop me-2"></i> Retirada no Local — <strong class="text-success">Grátis</strong>
                                 </label>
                             </div>
-                           
                             <div class="frete-option" data-valor="8.90" data-nome="Correios" onclick="selecionarFrete(this)">
                                 <input type="radio" name="frete" id="frete3" class="d-none">
                                 <label for="frete3" class="mb-0 w-100 cursor-pointer">
@@ -268,17 +282,24 @@
                     
                     <hr>
                     
-                    <!-- ÁREA PIX VISÍVEL AO CLIENTE -->
+                    <!-- PAGAMENTO MERCADO PAGO -->
+                    <div class="card bg-light mb-3">
+                        <div class="card-body">
+                            <h6 class="fw-bold text-primary mb-3"><i class="bi bi-credit-card-2-front me-2"></i>Pagar com Mercado Pago</h6>
+                            <p class="text-muted small mb-3">Você será redirecionado para a página segura do Mercado Pago</p>
+                            <button id="btnMercadoPago" class="btn btn-mercadopago w-100 py-2" onclick="pagarMercadoPago()">
+                                <i class="bi bi-shield-lock me-2"></i> Pagar com Mercado Pago
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- ÁREA PIX -->
                     <div class="card bg-light mb-3">
                         <div class="card-body">
                             <h6 class="fw-bold text-success mb-3"><i class="bi bi-qr-code-scan me-2"></i>Pagamento via PIX</h6>
-                            
-                            <!-- QR Code PIX -->
                             <div class="text-center mb-3" id="areaQrCodePix">
                                 <p class="text-muted">Cadastre o QR Code nas configurações</p>
                             </div>
-                            
-                            <!-- Chave PIX copiável -->
                             <div class="mb-2">
                                 <label class="form-label fw-bold">Chave PIX:</label>
                                 <div class="input-group pix-copia border rounded bg-white" onclick="copiarChavePix()">
@@ -289,8 +310,6 @@
                                 </div>
                                 <small class="text-muted">Nome: <span id="exibeNomePix">Não cadastrado</span></small>
                             </div>
-                            
-                            <!-- Área de edição só visível para admin -->
                             <div class="area-qr-admin mt-3">
                                 <p class="mb-2 fw-bold text-success"><i class="bi bi-pencil-square me-1"></i>Administrador — Edição Rápida:</p>
                                 <div class="mb-2">
@@ -303,16 +322,11 @@
                             </div>
                         </div>
                     </div>
-                    
-                    <!-- Botão PayPal -->
-                    <div class="mt-4">
-                        <h6 class="fw-bold mb-2">Ou pague com PayPal:</h6>
-                        <div id="paypal-button-container"></div>
-                    </div>
                 </div>
             </div>
         </div>
     </div>
+
     <!-- MODAL SENHA ADM -->
     <div class="modal fade" id="modalSenhaAdm" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
@@ -320,9 +334,7 @@
                 <div class="modal-header bg-dark text-white">
                     <h5 class="modal-title"><i class="bi bi-shield-lock me-2"></i>Acesso Restrito</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <p class="mb-3">Digite a senha de administração:</p>
+               class="mb-3">Digite a senha de administração:</p>
                     <div class="mb-3">
                         <input type="password" class="form-control" id="senhaAdm" placeholder="Senha" 
                                onkeypress="if(event.key==='Enter')verificarSenhaAdm()">
@@ -332,6 +344,7 @@
             </div>
         </div>
     </div>
+
     <!-- MODAL CONFIGURAÇÕES -->
     <div class="modal fade" id="modalConfigLoja" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
@@ -341,9 +354,18 @@
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
+                    <!-- Mercado Pago -->
+                    <h6 class="fw-bold mb-2 text-primary">Credenciais Mercado Pago (Teste)</h6>
+                    <div class="mb-2">
+                        <label class="form-label">Public Key (Chave Pública)</label>
+                        <input type="text" id="mpPublicKey" class="form-control" 
+                               placeholder="APP_USR-xxxxxxxxxxxxxxxx">
+                    </div>
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Máximo de parcelas sem juros</label>
-                        <input type="number" id="configMaxParcelas" class="form-control" min="1" max="24" value="12">
+                        <label class="form-label">Access Token (Token de Acesso)</label>
+                        <input type="password" id="mpAccessToken" class="form-control" 
+                               placeholder="APP_PRIVATE-xxxxxxxxxxxxxxxx">
+                        <small class="text-muted">O token de produção só será usado depois que tudo estiver testado</small>
                     </div>
                     <hr>
                     <h6 class="fw-bold mb-2">Dados do PIX</h6>
@@ -355,32 +377,12 @@
                         <label class="form-label">Nome do recebedor</label>
                         <input type="text" id="configNomePix" class="form-control" placeholder="Digite seu nome completo">
                     </div>
-                    
                     <div class="mb-3">
                         <label class="form-label">Foto QR Code PIX</label>
                         <input type="file" id="qrCodePixImagem" accept="image/*" class="form-control" onchange="salvarQrCodePix(event)">
                         <small class="text-muted">Selecione a imagem do seu QR Code do PIX</small>
                     </div>
-                    
                     <hr>
-                    <h6 class="fw-bold mb-2">Dados Bancários / Transferência</h6>
-                    <div class="mb-2">
-                        <label class="form-label">Nome do Banco</label>
-                        <input type="text" id="configBanco" class="form-control" placeholder="Nome do banco">
-                    </div>
-                    <div class="mb-2">
-                        <label class="form-label">Agência</label>
-                        <input type="text" id="configAgencia" class="form-control" placeholder="Nº da agência">
-                    </div>
-                    <div class="mb-2">
-                        <label class="form-label">Conta</label>
-                        <input type="text" id="configConta" class="form-control" placeholder="Nº da conta">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Titular</label>
-                        <input type="text" id="configTitular" class="form-control" placeholder="Nome completo">
-                    </div>
-                    
                     <div class="d-grid">
                         <button class="btn btn-primary" onclick="salvarConfiguracoes()">
                             <i class="bi bi-check-lg me-1"></i> Salvar Configurações
@@ -390,50 +392,130 @@
             </div>
         </div>
     </div>
+
     <button id="btnConfigLoja" class="btn btn-primary position-fixed bottom-3 end-3 d-none" onclick="abrirConfigLoja()">
         <i class="bi bi-gear"></i> Configurações
     </button>
+
     <footer class="py-5 bg-dark">
         <div class="container">
             <p class="m-0 text-center text-white">Copyright &copy; Pequenos Estilos 2026</p>
         </div>
     </footer>
-    
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://www.paypal.com/sdk/js?client-id=COLOQUE_SEU_CLIENT_ID_AQUI&currency=BRL&locale=pt_BR"></script>
-    
+
     <script>
         const SENHA_ADM = "admin123";
         const ESTOQUE_PADRAO = 50;
         const FOTO_PADRAO = "sorvete/Três-tipos-e-sabores-de-sorvete-diferentes-1.jpg.webp";
         const DESCONTO_PIX = 0.05;
-        
+
+        let mp = null;
         let modoAdmAtivo = false;
         let proximoId = 1;
         let produtos = {};
         let produtoAtual = null;
         let freteSelecionado = { valor: 0, nome: "Retirada no Local" };
         let totalCompra = 0;
-        let paypalCarregado = false;
-        
+
         let configLoja = {
-            maxParcelas: 12,
-            pix: { chave: "", nome: "", qrCodeImagem: "" },
-            banco: { nome: "", agencia: "", conta: "", titular: "" }
+            mercadoPago: { publicKey: "", accessToken: "" },
+            pix: { chave: "", nome: "", qrCodeImagem: "" }
         };
-        
+
         function formatarMoeda(valor) {
             if (valor === null || valor === undefined || isNaN(valor)) return '';
             return 'R$ ' + Number(valor).toFixed(2).replace('.', ',');
         }
-        
+
+        function inicializarMercadoPago() {
+            if (!configLoja.mercadoPago.publicKey) return;
+            mp = new MercadoPago(configLoja.mercadoPago.publicKey, { locale: 'pt-BR' });
+        }
+
+        async function pagarMercadoPago() {
+            if (!mp) {
+                alert('⚠️ Cadastre a Public Key do Mercado Pago nas Configurações primeiro!');
+                abrirConfigLoja();
+                return;
+            }
+            if (!produtoAtual) return;
+
+            const descricao = produtoAtual.nome + (freteSelecionado.valor > 0 ? ` - Frete: ${freteSelecionado.nome}` : '');
+
+            try {
+                // Cria a preferência de pagamento
+                const preferencia = {
+                    items: [
+                        {
+                            title: descricao,
+                            unit_price: Number(totalCompra.toFixed(2)),
+                            quantity: 1,
+                            currency_id: "BRL"
+                        }
+                    ],
+                    back_urls: {
+                        success: window.location.href + "?status=sucesso",
+                        failure: window.location.href + "?status=falha",
+                        pending: window.location.href + "?status=pendente"
+                    },
+                    auto_return: "approved"
+                };
+
+                // No GitHub Pages usamos a forma simplificada de Checkout Pro
+                // Gera o link de pagamento direto
+                const linkPagamento = await gerarLinkPagamento(preferencia);
+                
+                if (linkPagamento) {
+                    window.open(linkPagamento, '_blank');
+                } else {
+                    alert('❌ Erro ao gerar pagamento. Verifique as credenciais.');
+                }
+            } catch (erro) {
+                console.error('Erro Mercado Pago:', erro);
+                alert('❌ Erro: ' + erro.message);
+            }
+        }
+
+        async function gerarLinkPagamento(preferencia) {
+            const token = configLoja.mercadoPago.accessToken;
+            if (!token) {
+                alert('⚠️ Cadastre também o Access Token nas Configurações!');
+                return null;
+            }
+
+            try {
+                const resposta = await fetch('https://api.mercadopago.com/checkout/preferences', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(preferencia)
+                });
+
+                const dados = await resposta.json();
+                if (dados.init_point) {
+                    return dados.init_point;
+                } else {
+                    console.error('Erro API:', dados);
+                    return null;
+                }
+            } catch (erro) {
+                console.error('Falha na conexão:', erro);
+                return null;
+            }
+        }
+
+        // Restante das funções mantidas iguais
         function carregarFundoCabecalho() {
             const fundoSalvo = localStorage.getItem('fundoCabecalho');
             if (fundoSalvo) {
                 document.documentElement.style.setProperty('--bg-imagem', `url('${fundoSalvo}')`);
             }
         }
-        
+
         function trocarFundoCabecalho(event) {
             if (!modoAdmAtivo) return alert('Apenas administrador pode alterar!');
             const arquivo = event.target.files[0];
@@ -448,8 +530,7 @@
             leitor.readAsDataURL(arquivo);
             event.target.value = '';
         }
-        
-        // Salvar chave PIX rapidamente dentro do modal
+
         function salvarChavePixRapida() {
             if (!modoAdmAtivo) return alert('❌ Apenas administrador!');
             const chave = document.getElementById('chavePixRapida').value.trim();
@@ -459,8 +540,7 @@
             atualizarExibicaoDados();
             alert("✅ Chave PIX salva!");
         }
-        
-        // Salvar QR Code via modal de configurações
+
         function salvarQrCodePix(event) {
             const arquivo = event.target.files[0];
             if (!arquivo) return;
@@ -473,37 +553,32 @@
             };
             leitor.readAsDataURL(arquivo);
         }
-        
-        // Carregar configurações salvas
+
         function carregarConfiguracoes() {
             const salvas = localStorage.getItem("configLoja");
-            if (salvas) configLoja = JSON.parse(salvas);
-            document.getElementById("configMaxParcelas").value = configLoja.maxParcelas;
-            document.getElementById("configChavePix").value = configLoja.pix.chave;
-            document.getElementById("configNomePix").value = configLoja.pix.nome;
-            document.getElementById("configBanco").value = configLoja.banco.nome;
-            document.getElementById("configAgencia").value = configLoja.banco.agencia;
-            document.getElementById("configConta").value = configLoja.banco.conta;
-            document.getElementById("configTitular").value = configLoja.banco.titular;
+            if (salvas) {
+                configLoja = JSON.parse(salvas);
+            }
+            document.getElementById("mpPublicKey").value = configLoja.mercadoPago.publicKey || "";
+            document.getElementById("mpAccessToken").value = configLoja.mercadoPago.accessToken || "";
+            document.getElementById("configChavePix").value = configLoja.pix.chave || "";
+            document.getElementById("configNomePix").value = configLoja.pix.nome || "";
             atualizarExibicaoDados();
+            inicializarMercadoPago();
         }
-        
-        // Salvar todas as configurações
+
         function salvarConfiguracoes() {
-            configLoja.maxParcelas = parseInt(document.getElementById("configMaxParcelas").value) || 1;
+            configLoja.mercadoPago.publicKey = document.getElementById("mpPublicKey").value.trim();
+            configLoja.mercadoPago.accessToken = document.getElementById("mpAccessToken").value.trim();
             configLoja.pix.chave = document.getElementById("configChavePix").value.trim();
             configLoja.pix.nome = document.getElementById("configNomePix").value.trim();
-            configLoja.banco.nome = document.getElementById("configBanco").value.trim();
-            configLoja.banco.agencia = document.getElementById("configAgencia").value.trim();
-            configLoja.banco.conta = document.getElementById("configConta").value.trim();
-            configLoja.banco.titular = document.getElementById("configTitular").value.trim();
+            
             localStorage.setItem("configLoja", JSON.stringify(configLoja));
-            atualizarExibicaoDados();
+            inicializarMercadoPago();
             alert("✅ Configurações salvas!");
             bootstrap.Modal.getInstance(document.getElementById('modalConfigLoja')).hide();
         }
-        
-        // Atualizar o que o cliente vê
+
         function atualizarExibicaoDados() {
             const areaQr = document.getElementById("areaQrCodePix");
             if (areaQr) {
@@ -517,38 +592,36 @@
                     areaQr.innerHTML = `<p class="text-muted">Cadastre o QR Code nas configurações</p>`;
                 }
             }
-            
             document.getElementById("exibeChavePix").textContent = configLoja.pix.chave || "Não cadastrada";
             document.getElementById("exibeNomePix").textContent = configLoja.pix.nome || "Não cadastrado";
-            // Preencher campo rápido de edição
             const campoRapido = document.getElementById("chavePixRapida");
             if (campoRapido && configLoja.pix.chave) {
                 campoRapido.value = configLoja.pix.chave;
             }
         }
-        
+
         function abrirConfigLoja() {
             carregarConfiguracoes();
             new bootstrap.Modal(document.getElementById('modalConfigLoja')).show();
         }
-        
+
         function copiarChavePix() {
             if (!configLoja.pix.chave) return alert("Cadastre a chave PIX nas configurações primeiro!");
-            navigator.clipboard.writeText(configLoja.pix.chave).then(() => alert("✅ Chave copiada! Pode colar no app do banco."));
+            navigator.clipboard.writeText(configLoja.pix.chave).then(() => alert("✅ Chave copiada!"));
         }
-        
+
         function getClasseEstoque(qtd) {
             if (qtd === 0) return 'estoque-esgotado';
             if (qtd <= 5) return 'estoque-baixo';
             return 'estoque-normal';
         }
-        
+
         function getTextoEstoque(qtd) {
             if (qtd === 0) return '<i class="bi bi-x-circle"></i> Esgotado!';
             if (qtd <= 5) return `<i class="bi bi-exclamation-triangle"></i> Pouco disponível: ${qtd}`;
             return `<i class="bi bi-box-seam"></i> Disponível: ${qtd}`;
         }
-        
+
         function criarTemplateProduto(id) {
             const p = produtos[id];
             const precoAntigoHTML = p.precoAntigo 
@@ -625,7 +698,7 @@
                 </div>
             </div>`;
         }
-        
+
         function salvarProdutoNoStorage(id) {
             const p = produtos[id];
             localStorage.setItem(`produto${id}Nome`, p.nome);
@@ -643,7 +716,7 @@
             localStorage.setItem(`produto${id}ModoAjuste`, p.ajusteFoto);
             localStorage.setItem('ultimoIdProduto', String(proximoId - 1));
         }
-        
+
         function carregarProdutoDoStorage(id) {
             const prefix = `produto${id}`;
             const nome = localStorage.getItem(`${prefix}Nome`);
@@ -660,7 +733,7 @@
             };
             return true;
         }
-        
+
         function recarregarTodosProdutos() {
             document.getElementById('listaProdutos').innerHTML = '';
             let maxId = 0;
@@ -672,7 +745,7 @@
             }
             proximoId = maxId + 1;
         }
-        
+
         function aplicarTamanhoFoto(id) {
             if (!modoAdmAtivo) return alert('❌ Somente administrador!');
             const altura = document.getElementById(`alturaFoto${id}`).value;
@@ -685,7 +758,7 @@
             produtos[id].ajusteFoto = modo;
             salvarProdutoNoStorage(id);
         }
-        
+
         function adicionarNovoProduto() {
             if (!modoAdmAtivo) return alert('❌ Acesso restrito!');
             const nome = prompt('Nome do produto:');
@@ -710,7 +783,7 @@
             document.getElementById('listaProdutos').insertAdjacentHTML('beforeend', criarTemplateProduto(novoId));
             alert(`✅ "${nome}" adicionado!`);
         }
-        
+
         function excluirProduto(id) {
             if (!modoAdmAtivo) return;
             if (!confirm(`Excluir "${produtos[id].nome}"?`)) return;
@@ -721,7 +794,7 @@
             delete produtos[id];
             alert('✅ Excluído!');
         }
-        
+
         function editarCampo(elId, id) {
             if (!modoAdmAtivo) return;
             const novo = prompt('Novo nome:', produtos[id].nome);
@@ -730,7 +803,7 @@
             salvarProdutoNoStorage(id);
             document.getElementById(elId).textContent = novo;
         }
-        
+
         window.editarPrecos = function(id) {
             if (!modoAdmAtivo) return;
             const p = produtos[id];
@@ -744,7 +817,7 @@
             salvarProdutoNoStorage(id);
             recarregarTodosProdutos();
         };
-        
+
         function editarEstoque(id) {
             if (!modoAdmAtivo) return;
             const qtd = prompt('Nova quantidade:', produtos[id].estoque);
@@ -753,7 +826,7 @@
             salvarProdutoNoStorage(id);
             recarregarTodosProdutos();
         }
-        
+
         function trocarFoto(event, imgId, id) {
             if (!modoAdmAtivo) return alert('Apenas administrador!');
             const arq = event.target.files[0];
@@ -768,11 +841,11 @@
             leitor.readAsDataURL(arq);
             event.target.value = '';
         }
-        
+
         function abrirModalSenhaAdm() {
             new bootstrap.Modal(document.getElementById('modalSenhaAdm')).show();
         }
-        
+
         function verificarSenhaAdm() {
             if (document.getElementById('senhaAdm').value === SENHA_ADM) {
                 modoAdmAtivo = true;
@@ -785,7 +858,7 @@
                 document.getElementById('erroSenha').classList.remove('d-none');
             }
         }
-        
+
         function filtrarProdutos(termo) {
             termo = termo.toLowerCase().trim();
             document.querySelectorAll('.produto-card').forEach(card => {
@@ -793,60 +866,25 @@
                 card.style.display = produtos[id].nome.toLowerCase().includes(termo) ? 'block' : 'none';
             });
         }
-        
-        function inicializarPayPal() {
-            if (paypalCarregado || !produtoAtual || typeof paypal === 'undefined') return;
-            
-            paypal.Buttons({
-                style: { layout: 'vertical', color: 'gold', shape: 'rect', label: 'pay' },
-                createOrder: (data, actions) => {
-                    return actions.order.create({
-                        purchase_units: [{
-                            description: produtoAtual.nome,
-                            amount: { value: totalCompra.toFixed(2), currency_code: 'BRL' }
-                        }]
-                    });
-                },
-                onApprove: async (data, actions) => {
-                    const resultado = await actions.order.capture();
-                    alert(`✅ Pagamento confirmado! Obrigado(a)!\n\nID: ${resultado.id}`);
-                    console.log('Pagamento aprovado:', resultado);
-                    bootstrap.Modal.getInstance(document.getElementById('modalCompra')).hide();
-                },
-                onError: (erro) => {
-                    console.error('Erro no PayPal:', erro);
-                    alert('❌ Ocorreu um erro. Tente novamente ou pague por PIX.');
-                }
-            }).render('#paypal-button-container');
-            
-            paypalCarregado = true;
-        }
-        
+
         function abrirModalCompra(id) {
             produtoAtual = produtos[id];
             freteSelecionado = { valor: 0, nome: "Retirada no Local" };
             document.getElementById('nomeProdutoCompra').textContent = produtoAtual.nome;
             document.getElementById('valorProdutoCompra').textContent = formatarMoeda(produtoAtual.precoAtual);
-            
+
             document.querySelectorAll('.frete-option').forEach(el => {
                 el.classList.remove('selected');
                 el.querySelector('input').checked = false;
             });
             document.querySelector('.frete-option[data-valor="0"]').classList.add('selected');
             document.querySelector('#frete1').checked = true;
-            
+
             calcularTotal();
             atualizarExibicaoDados();
             new bootstrap.Modal(document.getElementById('modalCompra')).show();
-            
-            // Reinicializar botão PayPal
-            paypalCarregado = false;
-            document.getElementById('paypal-button-container').innerHTML = '';
-            setTimeout(() => {
-                if (!paypalCarregado) inicializarPayPal();
-            }, 100);
         }
-        
+
         function selecionarFrete(elemento) {
             document.querySelectorAll('.frete-option').forEach(el => {
                 el.classList.remove('selected');
@@ -858,7 +896,7 @@
             freteSelecionado.nome = elemento.dataset.nome;
             calcularTotal();
         }
-        
+
         function calcularTotal() {
             totalCompra = produtoAtual.precoAtual + freteSelecionado.valor;
             document.getElementById('subtotalCompra').textContent = formatarMoeda(produtoAtual.precoAtual);
@@ -867,7 +905,7 @@
             document.getElementById('valorPix').textContent = formatarMoeda(totalCompra * (1 - DESCONTO_PIX));
             atualizarExibicaoDados();
         }
-        
+
         document.addEventListener('DOMContentLoaded', () => {
             carregarFundoCabecalho();
             carregarConfiguracoes();
