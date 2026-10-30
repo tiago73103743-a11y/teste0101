@@ -1,0 +1,3392 @@
+
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Sorvete - Loja</title>
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"
+    >
+
+    <style>
+
+      
+
+        body {
+            background: #f5f5f5;
+        }
+
+        .modal-pagamento .list-group-item {
+            border: none;
+            border-bottom: 1px solid #eee;
+        }
+
+        .qr-code-box {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .card-icons i {
+            font-size: 1.8rem;
+            margin: 0 5px;
+            color: #333;
+        }
+
+        .frete-option {
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .frete-option:hover {
+            background: #e9ecef;
+        }
+
+        .frete-option.selected {
+            border-color: #0d6efd;
+            background: #e7f1ff;
+        }
+
+        .erro-validacao {
+            font-size: 0.8rem;
+            color: #dc3545;
+            margin-top: 0.25rem;
+            display: none;
+        }
+
+        .input-invalido {
+            border-color: #dc3545 !important;
+            box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+        }
+
+        button:disabled {
+            cursor: not-allowed;
+            opacity: 0.65;
+        }
+
+        /* PAINEL ADMIN */
+        .painel-adm {
+            background: #fff3cd;
+            border: 2px dashed #ffc107;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        /* TEXTO DE DESTAQUE */
+        .texto-destaque {
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+            color: #fff;
+            padding: 0.5rem;
+            border-radius: 8px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .btn-editar {
+            font-size: 0.75rem;
+            padding: 0.1rem 0.4rem;
+        }
+
+        /* FOTO */
+        .foto-produto {
+            position: relative;
+        }
+
+        .btn-trocar-foto {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            display: none;
+        }
+
+        .foto-produto img {
+            width: 100%;
+            height: 140px;
+            object-fit: cover;
+        }
+
+        /* ESTOQUE */
+        .estoque-badge {
+            font-size: 0.85rem;
+            padding: 0.3rem 0.6rem;
+            border-radius: 20px;
+        }
+
+        .estoque-baixo {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .estoque-esgotado {
+            background-color: #f8d7da;
+            color: #dc3545;
+        }
+
+        .estoque-normal {
+            background-color: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .sem-estoque {
+            opacity: 0.5;
+        }
+
+        .sem-estoque .btn {
+            pointer-events: none;
+        }
+
+        /* CARD ADMIN */
+        .card-edicao-produto {
+            border: 2px solid #ffc107;
+        }
+
+        .admin-titulo {
+            font-weight: bold;
+            color: #212529;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<!-- =====================================================
+     🔐 BOTÃO DE ACESSO DO ADMIN
+     ===================================================== -->
+
+<div
+    class="position-fixed top-0 end-0 p-2"
+    style="z-index: 1050;"
+>
+
+    <button
+        id="btnAcessoAdm"
+        class="btn btn-outline-dark btn-sm"
+        onclick="abrirModalSenhaAdm()"
+    >
+
+        <i class="bi bi-gear"></i>
+
+        Administrador
+
+    </button>
+
+</div>
+
+
+<!-- =====================================================
+     🔐 MODAL SENHA ADMIN
+     ===================================================== -->
+
+<div
+    class="modal fade"
+    id="modalSenhaAdm"
+    tabindex="-1"
+    aria-hidden="true"
+>
+
+    <div class="modal-dialog modal-sm">
+
+        <div class="modal-content">
+
+            <div class="modal-header bg-dark text-white">
+
+                <h5 class="modal-title">
+                    Acesso Administrador
+                </h5>
+
+                <button
+                    type="button"
+                    class="btn-close btn-close-white"
+                    data-bs-dismiss="modal"
+                ></button>
+
+            </div>
+
+            <div class="modal-body">
+
+                <label class="form-label">
+                    Digite a senha de administrador:
+                </label>
+
+                <input
+                    type="password"
+                    id="senhaAdm"
+                    class="form-control"
+                    placeholder="••••••"
+                    onkeydown="if(event.key === 'Enter') verificarSenhaAdm()"
+                >
+
+                <div
+                    id="erroSenha"
+                    class="text-danger small mt-1 d-none"
+                >
+                    Senha incorreta!
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-bs-dismiss="modal"
+                >
+                    Cancelar
+                </button>
+
+                <button
+                    type="button"
+                    class="btn btn-primary"
+                    onclick="verificarSenhaAdm()"
+                >
+                    Entrar
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     🍦 PRODUTO
+     ===================================================== -->
+
+<div
+    class="col mb-2"
+    style="max-width: 380px; margin: 4rem auto 2rem;"
+>
+
+    <div
+        class="card h-100"
+        id="cartaoProduto"
+    >
+
+        <div
+            class="badge bg-dark text-white position-absolute"
+            style="
+                top: 0.3rem;
+                right: 0.3rem;
+                font-size: 0.7rem;
+                z-index: 2;
+            "
+        >
+            Promoção
+        </div>
+
+
+        <!-- TEXTO DE DESTAQUE -->
+
+        <div
+            id="caixaTextoDestaque"
+            class="texto-destaque mx-2 mt-2"
+        >
+
+            <span id="textoDestaque">
+                🎉 Promoção Especial - Aproveite!
+            </span>
+
+        </div>
+
+
+        <!-- FOTO -->
+
+        <div class="foto-produto">
+
+            <img
+                id="imgProduto"
+                class="card-img-top"
+                src="sorvete/Três-tipos-e-sabores-de-sorvete-diferentes-1.jpg.webp"
+                alt="Sorvete"
+            >
+
+            <button
+                id="btnTrocarFoto"
+                type="button"
+                class="btn btn-sm btn-dark btn-trocar-foto"
+                onclick="document.getElementById('inputNovaFoto').click()"
+            >
+
+                <i class="bi bi-camera"></i>
+
+                Trocar
+
+            </button>
+
+            <input
+                type="file"
+                id="inputNovaFoto"
+                accept="image/*"
+                class="d-none"
+                onchange="trocarFoto(event)"
+            >
+
+        </div>
+
+
+        <!-- CORPO -->
+
+        <div class="card-body p-3">
+
+            <div class="text-center">
+
+                <h3
+                    id="nomeProduto"
+                    class="fw-bolder mb-2"
+                >
+                    Sorvete
+                </h3>
+
+
+                <button
+                    id="btnEditarNome"
+                    type="button"
+                    class="btn btn-outline-secondary btn-editar mb-2 d-none"
+                    onclick="editarCampo('nomeProduto')"
+                >
+
+                    <i class="bi bi-pencil"></i>
+
+                    Editar Nome
+
+                </button>
+
+
+                <!-- ESTOQUE -->
+
+                <div class="mb-2">
+
+                    <span
+                        id="badgeEstoque"
+                        class="estoque-badge estoque-normal"
+                    >
+
+                        <i class="bi bi-box-seam"></i>
+
+                        Estoque:
+
+                        <strong id="quantidadeEstoque">
+                            50
+                        </strong>
+
+                        unidades
+
+                    </span>
+
+                </div>
+
+
+                <button
+                    id="btnEditarEstoque"
+                    type="button"
+                    class="btn btn-outline-secondary btn-editar mb-2 d-none"
+                    onclick="editarEstoque()"
+                >
+
+                    <i class="bi bi-pencil"></i>
+
+                    Editar Estoque
+
+                </button>
+
+
+                <!-- AVALIAÇÃO -->
+
+                <div
+                    class="d-flex justify-content-center small text-warning mb-2"
+                >
+
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+
+                </div>
+
+
+                <!-- PREÇOS -->
+
+                <div>
+
+                    <span
+                        id="precoAntigo"
+                        class="text-muted text-decoration-line-through me-1"
+                    >
+                        R$ 20,00
+                    </span>
+
+                    <strong
+                        id="precoAtual"
+                        class="fs-5 text-success"
+                    >
+                        R$ 18,00
+                    </strong>
+
+                </div>
+
+
+                <button
+                    id="btnEditarPrecos"
+                    type="button"
+                    class="btn btn-outline-secondary btn-editar mb-2 d-none"
+                    onclick="editarPrecos()"
+                >
+
+                    <i class="bi bi-pencil"></i>
+
+                    Editar Preços
+
+                </button>
+
+
+                <!-- FRETE -->
+
+                <div class="mt-3 text-start">
+
+                    <label class="form-label small fw-semibold mb-1">
+
+                        <i class="bi bi-truck me-1"></i>
+
+                        Calcular Frete
+
+                    </label>
+
+                    <div class="input-group mb-2">
+
+                        <input
+                            type="text"
+                            id="cep"
+                            class="form-control form-control-sm"
+                            placeholder="00000-000"
+                            maxlength="9"
+                            oninput="aplicarMascaraCEP(this); validarCEP()"
+                        >
+
+                        <button
+                            class="btn btn-outline-primary btn-sm"
+                            type="button"
+                            onclick="calcularFrete()"
+                        >
+                            Calcular
+                        </button>
+
+                    </div>
+
+                    <div
+                        id="erroCEP"
+                        class="erro-validacao"
+                    >
+                        Digite um CEP válido.
+                    </div>
+
+
+                    <div
+                        id="opcoesFrete"
+                        class="d-none mb-2"
+                    >
+
+                        <p class="small mb-1 fw-medium">
+                            Escolha a forma de entrega:
+                        </p>
+
+
+                        <div
+                            class="list-group list-group-flush border rounded overflow-hidden"
+                        >
+
+                            <label
+                                class="list-group-item frete-option py-2"
+                                data-valor="5.90"
+                                onclick="selecionarFrete(this)"
+                            >
+
+                                <input
+                                    type="radio"
+                                    name="frete"
+                                    class="form-check-input me-2"
+                                >
+
+                                <span class="fw-medium">
+                                    Entrega Econômica
+                                </span>
+
+                                <span class="float-end text-success fw-bold">
+                                    R$ 5,90
+                                </span>
+
+                                <div class="small text-muted">
+                                    Até 5 dias úteis
+                                </div>
+
+                            </label>
+
+
+                            <label
+                                class="list-group-item frete-option py-2"
+                                data-valor="9.90"
+                                onclick="selecionarFrete(this)"
+                            >
+
+                                <input
+                                    type="radio"
+                                    name="frete"
+                                    class="form-check-input me-2"
+                                >
+
+                                <span class="fw-medium">
+                                    Entrega Rápida
+                                </span>
+
+                                <span class="float-end text-success fw-bold">
+                                    R$ 9,90
+                                </span>
+
+                                <div class="small text-muted">
+                                    Até 2 dias úteis
+                                </div>
+
+                            </label>
+
+
+                            <label
+                                class="list-group-item frete-option py-2"
+                                data-valor="14.90"
+                                onclick="selecionarFrete(this)"
+                            >
+
+                                <input
+                                    type="radio"
+                                    name="frete"
+                                    class="form-check-input me-2"
+                                >
+
+                                <span class="fw-medium">
+                                    Entrega Expressa
+                                </span>
+
+                                <span class="float-end text-success fw-bold">
+                                    R$ 14,90
+                                </span>
+
+                                <div class="small text-muted">
+                                    Hoje ou amanhã
+                                </div>
+
+                            </label>
+
+                        </div>
+
+
+                        <div
+                            id="erroFrete"
+                            class="erro-validacao"
+                        >
+                            Escolha uma opção de frete
+                        </div>
+
+                    </div>
+
+
+                    <!-- TOTAL -->
+
+                    <div
+                        id="caixaTotal"
+                        class="d-none mt-2 p-2 bg-light rounded"
+                    >
+
+                        <div class="d-flex justify-content-between small mb-1">
+
+                            <span>Subtotal:</span>
+
+                            <span id="subtotal">
+                                R$ 18,00
+                            </span>
+
+                        </div>
+
+
+                        <div class="d-flex justify-content-between small mb-1">
+
+                            <span>Frete:</span>
+
+                            <span id="valorFrete">
+                                R$ 0,00
+                            </span>
+
+                        </div>
+
+
+                        <hr class="my-1">
+
+
+                        <div class="d-flex justify-content-between fw-bold fs-6">
+
+                            <span>Total:</span>
+
+                            <span
+                                id="valorTotal"
+                                class="text-success"
+                            >
+                                R$ 18,00
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- COMPRAR -->
+
+                <div class="mt-3">
+
+                    <button
+                        id="btnComprar"
+                        class="btn btn-primary w-100"
+                        data-bs-toggle="modal"
+                        data-bs-target="#modalPagamento"
+                        onclick="atualizarTotalModal()"
+                    >
+
+                        <i class="bi bi-cart-check me-2"></i>
+
+                        Comprar
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         🔐 PAINEL ADMIN
+         ===================================================== -->
+
+    <div
+        id="painelAdm"
+        class="painel-adm mt-3"
+    >
+
+        <h6 class="fw-bold text-dark mb-3">
+
+            <i class="bi bi-gear-fill"></i>
+
+            Painel de Controle
+
+        </h6>
+
+
+        <div class="alert alert-info py-2 px-3 small mb-3">
+
+            <i class="bi bi-cloud-check me-1"></i>
+
+            <strong>Dados salvos:</strong>
+
+            foto, nome, preço, estoque e configurações
+            ficam gravados neste navegador.
+
+        </div>
+
+
+        <!-- EDITAR PRODUTO -->
+
+        <div class="card card-edicao-produto bg-white mb-3">
+
+            <div class="card-body p-3">
+
+                <h6 class="admin-titulo mb-3">
+
+                    <i class="bi bi-pencil-square"></i>
+
+                    Editar Produto
+
+                </h6>
+
+
+                <button
+                    type="button"
+                    class="btn btn-dark btn-sm w-100 mb-2"
+                    onclick="document.getElementById('inputNovaFoto').click()"
+                >
+
+                    <i class="bi bi-camera"></i>
+
+                    Adicionar / Trocar Foto
+
+                </button>
+
+
+                <button
+                    type="button"
+                    class="btn btn-outline-primary btn-sm w-100 mb-2"
+                    onclick="editarCampo('nomeProduto')"
+                >
+
+                    <i class="bi bi-pencil"></i>
+
+                    Trocar Nome do Sorvete
+
+                </button>
+
+
+                <button
+                    type="button"
+                    class="btn btn-outline-success btn-sm w-100 mb-2"
+                    onclick="editarPrecos()"
+                >
+
+                    <i class="bi bi-currency-dollar"></i>
+
+                    Trocar Valor
+
+                </button>
+
+
+                <button
+                    type="button"
+                    class="btn btn-outline-secondary btn-sm w-100"
+                    onclick="restaurarFotoPadrao()"
+                >
+
+                    <i class="bi bi-arrow-counterclockwise"></i>
+
+                    Restaurar Foto Original
+
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- ESTOQUE -->
+
+        <div class="card bg-light mb-3">
+
+            <div class="card-body p-2">
+
+                <h6 class="fw-semibold mb-2">
+
+                    <i class="bi bi-box-seam"></i>
+
+                    Controle de Estoque
+
+                </h6>
+
+
+                <div class="row g-2 mb-2">
+
+                    <div class="col-6">
+
+                        <label class="form-label small">
+                            Quantidade atual:
+                        </label>
+
+                        <input
+                            type="number"
+                            id="inputEstoqueAtual"
+                            class="form-control form-control-sm"
+                            min="0"
+                            step="1"
+                            value="50"
+                        >
+
+                    </div>
+
+
+                    <div class="col-6">
+
+                        <label class="form-label small">
+                            Adicionar:
+                        </label>
+
+                        <input
+                            type="number"
+                            id="inputAdicionar"
+                            class="form-control form-control-sm"
+                            min="0"
+                            step="1"
+                            placeholder="0"
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <div class="row g-2 mb-2">
+
+                    <div class="col-6">
+
+                        <button
+                            class="btn btn-success btn-sm w-100"
+                            onclick="adicionarEstoque()"
+                        >
+
+                            <i class="bi bi-plus-circle"></i>
+
+                            Adicionar
+
+                        </button>
+
+                    </div>
+
+
+                    <div class="col-6">
+
+                        <button
+                            class="btn btn-warning btn-sm w-100"
+                            onclick="definirEstoque()"
+                        >
+
+                            <i class="bi bi-pencil"></i>
+
+                            Definir Total
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <hr class="my-2">
+
+
+                <label class="form-label small fw-semibold mb-1">
+
+                    📦 Venda por Fora do Site:
+
+                </label>
+
+
+                <div class="input-group input-group-sm mb-2">
+
+                    <input
+                        type="number"
+                        id="inputVendaExterna"
+                        class="form-control"
+                        min="1"
+                        placeholder="Quantidade vendida"
+                    >
+
+                    <button
+                        class="btn btn-danger"
+                        onclick="registrarVendaExterna()"
+                    >
+
+                        <i class="bi bi-dash-circle"></i>
+
+                        Descontar
+
+                    </button>
+
+                </div>
+
+
+                <p class="text-muted small mb-0">
+
+                    Use quando vender presencialmente
+                    ou por outro canal.
+
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- TEXTO DE DESTAQUE -->
+
+        <div class="mb-3">
+
+            <label class="form-label small fw-semibold">
+                Texto de Destaque:
+            </label>
+
+
+            <div class="input-group input-group-sm">
+
+                <input
+                    type="text"
+                    id="inputTextoDestaque"
+                    class="form-control"
+                    placeholder="Ex: Oferta Relâmpago!"
+                >
+
+
+                <button
+                    class="btn btn-success"
+                    onclick="salvarTextoDestaque()"
+                >
+                    Exibir
+                </button>
+
+
+                <button
+                    class="btn btn-danger"
+                    onclick="ocultarTextoDestaque()"
+                >
+                    Ocultar
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <hr class="my-2">
+
+
+        <button
+            class="btn btn-outline-danger btn-sm w-100"
+            onclick="sairModoAdm()"
+        >
+
+            <i class="bi bi-box-arrow-right"></i>
+
+            Sair do Modo Administrador
+
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     💳 MODAL PAGAMENTO
+     ===================================================== -->
+
+<div
+    class="modal fade"
+    id="modalPagamento"
+    tabindex="-1"
+    aria-labelledby="tituloModal"
+    aria-hidden="true"
+>
+
+    <div class="modal-dialog">
+
+        <div class="modal-content modal-pagamento">
+
+            <div class="modal-header bg-primary text-white">
+
+                <h5
+                    class="modal-title"
+                    id="tituloModal"
+                >
+                    Escolha como pagar
+                </h5>
+
+
+                <button
+                    type="button"
+                    class="btn-close btn-close-white"
+                    data-bs-dismiss="modal"
+                    aria-label="Fechar"
+                ></button>
+
+            </div>
+
+
+            <div class="modal-body">
+
+
+                <!-- RESUMO -->
+
+                <div class="card bg-light mb-3">
+
+                    <div class="card-body p-2">
+
+                        <h6 class="mb-2">
+                            Resumo do Pedido
+                        </h6>
+
+
+                        <div class="d-flex justify-content-between small mb-1">
+
+                            <span id="modalNomeProduto">
+                                Sorvete
+                            </span>
+
+                            <span id="modalSubtotal">
+                                R$ 18,00
+                            </span>
+
+                        </div>
+
+
+                        <div class="d-flex justify-content-between small mb-1">
+
+                            <span>
+                                Frete
+                            </span>
+
+                            <span id="modalValorFrete">
+                                R$ 0,00
+                            </span>
+
+                        </div>
+
+
+                        <hr class="my-1">
+
+
+                        <div class="d-flex justify-content-between fw-bold">
+
+                            <span>
+                                Total a Pagar
+                            </span>
+
+                            <span
+                                id="modalValorTotal"
+                                class="text-success"
+                            >
+                                R$ 18,00
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- CARTÃO -->
+
+                <div class="card mb-3">
+
+                    <div class="card-header bg-light fw-bold">
+
+                        <i class="bi bi-credit-card-2-front me-2"></i>
+
+                        Pagar com Cartão
+
+                    </div>
+
+
+                    <div class="card-body">
+
+                        <p class="mb-2 small">
+
+                            Aceitamos:
+                            Visa, Mastercard, Elo,
+                            Amex, PicPay, Itaú,
+                            Santander e Inter.
+
+                        </p>
+
+
+                        <div class="card-icons mb-3">
+
+                            <i class="bi bi-credit-card"></i>
+                            <i class="bi bi-credit-card-2-front"></i>
+                            <i class="bi bi-credit-card-fill"></i>
+                            <i class="bi bi-bank"></i>
+                            <i class="bi bi-bank2"></i>
+                            <i class="bi bi-wallet2"></i>
+                            <i class="bi bi-building"></i>
+
+                        </div>
+
+
+                        <form id="formPagamentoCartao">
+
+
+                            <div class="mb-2">
+
+                                <label class="form-label small">
+                                    Número do Cartão
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="numCartao"
+                                    class="form-control form-control-sm"
+                                    placeholder="0000 0000 0000 0000"
+                                    maxlength="19"
+                                    oninput="formatarNumeroCartao(this); validarNumCartao()"
+                                >
+
+                                <div
+                                    id="erroNumCartao"
+                                    class="erro-validacao"
+                                >
+                                    Número do cartão inválido.
+                                </div>
+
+                            </div>
+
+
+                            <div class="row">
+
+                                <div class="col-6 mb-2">
+
+                                    <label class="form-label small">
+                                        Validade
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        id="validade"
+                                        class="form-control form-control-sm"
+                                        placeholder="MM/AA"
+                                        maxlength="5"
+                                        oninput="formatarValidade(this); validarValidade()"
+                                    >
+
+                                    <div
+                                        id="erroValidade"
+                                        class="erro-validacao"
+                                    >
+                                        Validade inválida.
+                                    </div>
+
+                                </div>
+
+
+                                <div class="col-6 mb-2">
+
+                                    <label class="form-label small">
+                                        CVV
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        id="cvv"
+                                        class="form-control form-control-sm"
+                                        placeholder="123"
+                                        maxlength="4"
+                                        oninput="validarCVV()"
+                                    >
+
+                                    <div
+                                        id="erroCVV"
+                                        class="erro-validacao"
+                                    >
+                                        CVV inválido.
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="mb-2">
+
+                                <label class="form-label small">
+                                    Nome no Cartão
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="nomeCartao"
+                                    class="form-control form-control-sm"
+                                    placeholder="Seu Nome Completo"
+                                    oninput="validarNome()"
+                                >
+
+                                <div
+                                    id="erroNome"
+                                    class="erro-validacao"
+                                >
+                                    Digite o nome completo.
+                                </div>
+
+                            </div>
+
+
+                            <button
+                                type="submit"
+                                id="btnFinalizar"
+                                class="btn btn-success w-100 mt-2"
+                                disabled
+                            >
+
+                                <i class="bi bi-lock-fill me-1"></i>
+
+                                Finalizar Pagamento
+
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                </div>
+
+
+                <!-- PIX -->
+
+                <div class="card">
+
+                    <div class="card-header bg-light fw-bold">
+
+                        <i class="bi bi-qr-code-scan me-2"></i>
+
+                        Pagar com Pix - Banco Inter
+
+                    </div>
+
+
+                    <div class="card-body text-center">
+
+                        <p class="mb-2">
+
+                            Valor:
+
+                            <strong
+                                id="valorPix"
+                                class="text-success fs-5"
+                            >
+                                R$ 18,00
+                            </strong>
+
+                        </p>
+
+
+                        <div class="qr-code-box mb-3">
+
+                            <p class="small text-muted mb-2">
+                                Escaneie com o app do seu banco
+                            </p>
+
+
+                            <img
+                                src="sorvete/WhatsApp Image 2026-10-06 at 11.03.27.jpeg"
+                                alt="QR Code Pix"
+                                style="
+                                    width: 200px;
+                                    height: 200px;
+                                    object-fit: contain;
+                                "
+                                class="mx-auto d-block mb-2"
+                            >
+
+
+                            <p class="small fw-semibold">
+                                TIAGO TEIXEIRA BARROSO
+                            </p>
+
+                        </div>
+
+
+                        <p class="small text-muted mb-2">
+                            Ou copie a chave Pix abaixo:
+                        </p>
+
+
+                        <div class="input-group mb-2">
+
+                            <input
+                                type="text"
+                                class="form-control form-control-sm"
+                                id="codigoPix"
+                                value="0aabeba0-1322-4171-9adb-68bd70cd8ea7"
+                                readonly
+                            >
+
+
+                            <button
+                                class="btn btn-outline-secondary btn-sm"
+                                type="button"
+                                onclick="copiarPix()"
+                            >
+
+                                <i class="bi bi-clipboard"></i>
+
+                                Copiar
+
+                            </button>
+
+                        </div>
+
+
+                        <p class="small text-success mt-2">
+
+                            <i class="bi bi-check-circle"></i>
+
+                            Pagamento instantâneo
+
+                        </p>
+
+
+                        <p class="small text-muted">
+                            Banco Inter - Chave Pix UUID
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="modal-footer">
+
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-bs-dismiss="modal"
+                >
+                    Fechar
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+
+// =====================================================
+// ⚙️ CONFIGURAÇÕES
+// =====================================================
+
+const SENHA_ADM = "admin123";
+
+const ESTOQUE_PADRAO = 50;
+
+const FOTO_PADRAO =
+    "sorvete/Três-tipos-e-sabores-de-sorvete-diferentes-1.jpg.webp";
+
+let valorProduto = 18.00;
+
+let valorFreteEscolhido = 0;
+
+let freteSelecionado = false;
+
+
+/*
+    IMPORTANTE:
+
+    O administrador NÃO fica salvo no localStorage.
+
+    Sempre que a página é aberta:
+    modoAdmAtivo = false
+
+    Portanto o usuário começa como cliente.
+*/
+
+let modoAdmAtivo = false;
+
+
+// =====================================================
+// 📦 ESTOQUE
+// =====================================================
+
+let estoque = carregarEstoque();
+
+
+function carregarEstoque() {
+
+    const salvo =
+        localStorage.getItem("estoqueProduto");
+
+    if (salvo === null) {
+        return ESTOQUE_PADRAO;
+    }
+
+    const valor =
+        parseInt(salvo, 10);
+
+    return Number.isInteger(valor) && valor >= 0
+        ? valor
+        : ESTOQUE_PADRAO;
+}
+
+
+function salvarEstoque() {
+
+    localStorage.setItem(
+        "estoqueProduto",
+        String(estoque)
+    );
+}
+
+
+// =====================================================
+// 🍦 CARREGAR PRODUTO
+// =====================================================
+
+function carregarProduto() {
+
+    const nomeSalvo =
+        localStorage.getItem("produtoNome");
+
+    if (nomeSalvo) {
+
+        document.getElementById(
+            "nomeProduto"
+        ).textContent = nomeSalvo;
+
+        document.getElementById(
+            "modalNomeProduto"
+        ).textContent = nomeSalvo;
+    }
+
+
+    const precoSalvo =
+        localStorage.getItem("produtoPreco");
+
+    if (precoSalvo !== null) {
+
+        const preco =
+            parseFloat(precoSalvo);
+
+        if (!isNaN(preco) && preco > 0) {
+
+            valorProduto = preco;
+
+            document.getElementById(
+                "precoAtual"
+            ).textContent =
+                formatarMoeda(preco);
+
+            document.getElementById(
+                "subtotal"
+            ).textContent =
+                formatarMoeda(preco);
+
+            document.getElementById(
+                "modalSubtotal"
+            ).textContent =
+                formatarMoeda(preco);
+        }
+    }
+
+
+    const precoAntigoSalvo =
+        localStorage.getItem(
+            "produtoPrecoAntigo"
+        );
+
+    if (precoAntigoSalvo !== null) {
+
+        const precoAntigo =
+            parseFloat(precoAntigoSalvo);
+
+        if (!isNaN(precoAntigo)) {
+
+            document.getElementById(
+                "precoAntigo"
+            ).textContent =
+                formatarMoeda(precoAntigo);
+        }
+    }
+
+
+    const fotoSalva =
+        localStorage.getItem("produtoFoto");
+
+    if (fotoSalva) {
+
+        document.getElementById(
+            "imgProduto"
+        ).src = fotoSalva;
+    }
+}
+
+
+// =====================================================
+// 🔐 ABRIR LOGIN ADMIN
+// =====================================================
+
+function abrirModalSenhaAdm() {
+
+    const modal =
+        new bootstrap.Modal(
+            document.getElementById(
+                "modalSenhaAdm"
+            )
+        );
+
+    modal.show();
+
+
+    document.getElementById(
+        "senhaAdm"
+    ).value = "";
+
+
+    document.getElementById(
+        "erroSenha"
+    ).classList.add("d-none");
+}
+
+
+// =====================================================
+// 🔑 VERIFICAR SENHA
+// =====================================================
+
+function verificarSenhaAdm() {
+
+    const senha =
+        document.getElementById(
+            "senhaAdm"
+        ).value;
+
+
+    if (senha === SENHA_ADM) {
+
+        modoAdmAtivo = true;
+
+
+        document.getElementById(
+            "erroSenha"
+        ).classList.add("d-none");
+
+
+        const modal =
+            bootstrap.Modal.getInstance(
+                document.getElementById(
+                    "modalSenhaAdm"
+                )
+            );
+
+
+        if (modal) {
+            modal.hide();
+        }
+
+
+        ativarModoAdm();
+
+
+        alert(
+            "✅ Administrador conectado!"
+        );
+
+
+    } else {
+
+        document.getElementById(
+            "erroSenha"
+        ).classList.remove("d-none");
+
+    }
+}
+
+
+// =====================================================
+// 🔓 ATIVAR MODO ADMIN
+// =====================================================
+
+function ativarModoAdm() {
+
+    modoAdmAtivo = true;
+
+
+    document.getElementById(
+        "painelAdm"
+    ).style.display = "block";
+
+
+    document.getElementById(
+        "btnEditarNome"
+    ).classList.remove("d-none");
+
+
+    document.getElementById(
+        "btnEditarPrecos"
+    ).classList.remove("d-none");
+
+
+    document.getElementById(
+        "btnEditarEstoque"
+    ).classList.remove("d-none");
+
+
+    document.getElementById(
+        "btnTrocarFoto"
+    ).style.display = "block";
+
+
+    document.getElementById(
+        "inputEstoqueAtual"
+    ).value = estoque;
+
+
+    const botao =
+        document.getElementById(
+            "btnAcessoAdm"
+        );
+
+
+    botao.innerHTML =
+        '<i class="bi bi-person-check-fill"></i> Admin Ativo';
+
+
+    botao.classList.remove(
+        "btn-outline-dark"
+    );
+
+
+    botao.classList.add(
+        "btn-success"
+    );
+}
+
+
+// =====================================================
+// 🚪 SAIR DO ADMIN
+// =====================================================
+
+function sairModoAdm() {
+
+    modoAdmAtivo = false;
+
+
+    /*
+        NÃO existe mais:
+
+        localStorage.removeItem("modoAdministrador")
+
+        porque o login administrativo
+        não é mais salvo no localStorage.
+    */
+
+
+    document.getElementById(
+        "painelAdm"
+    ).style.display = "none";
+
+
+    document.getElementById(
+        "btnEditarNome"
+    ).classList.add("d-none");
+
+
+    document.getElementById(
+        "btnEditarPrecos"
+    ).classList.add("d-none");
+
+
+    document.getElementById(
+        "btnEditarEstoque"
+    ).classList.add("d-none");
+
+
+    document.getElementById(
+        "btnTrocarFoto"
+    ).style.display = "none";
+
+
+    const botao =
+        document.getElementById(
+            "btnAcessoAdm"
+        );
+
+
+    botao.innerHTML =
+        '<i class="bi bi-gear"></i> Administrador';
+
+
+    botao.classList.remove(
+        "btn-success"
+    );
+
+
+    botao.classList.add(
+        "btn-outline-dark"
+    );
+}
+
+
+// =====================================================
+// ✏️ ALTERAR NOME
+// =====================================================
+
+function editarCampo(idElemento) {
+
+    if (!modoAdmAtivo) {
+
+        alert(
+            "❌ Somente o administrador pode alterar o produto."
+        );
+
+        return;
+    }
+
+
+    const elemento =
+        document.getElementById(
+            idElemento
+        );
+
+
+    const nomeAtual =
+        elemento.textContent.trim();
+
+
+    const novoNome =
+        prompt(
+            "Digite o novo nome do sorvete:",
+            nomeAtual
+        );
+
+
+    if (
+        novoNome !== null &&
+        novoNome.trim() !== ""
+    ) {
+
+        const nome =
+            novoNome.trim();
+
+
+        localStorage.setItem(
+            "produtoNome",
+            nome
+        );
+
+
+        document.getElementById(
+            "nomeProduto"
+        ).textContent = nome;
+
+
+        document.getElementById(
+            "modalNomeProduto"
+        ).textContent = nome;
+
+
+        alert(
+            "✅ Nome alterado com sucesso!"
+        );
+    }
+}
+
+
+// =====================================================
+// 💰 ALTERAR PREÇO
+// =====================================================
+
+function editarPrecos() {
+
+    if (!modoAdmAtivo) {
+
+        alert(
+            "❌ Somente o administrador pode alterar o preço."
+        );
+
+        return;
+    }
+
+
+    const antigoAtual =
+        document.getElementById(
+            "precoAntigo"
+        ).textContent
+        .replace("R$", "")
+        .trim();
+
+
+    const atualAtual =
+        valorProduto
+            .toFixed(2)
+            .replace(".", ",");
+
+
+    const antigo =
+        prompt(
+            "Digite o preço antigo:\nExemplo: 20,00",
+            antigoAtual
+        );
+
+
+    if (antigo === null) {
+        return;
+    }
+
+
+    const atual =
+        prompt(
+            "Digite o novo valor:\nExemplo: 18,00",
+            atualAtual
+        );
+
+
+    if (atual === null) {
+        return;
+    }
+
+
+    const antigoNumero =
+        parseFloat(
+            antigo
+                .replace("R$", "")
+                .replace(",", ".")
+        );
+
+
+    const atualNumero =
+        parseFloat(
+            atual
+                .replace("R$", "")
+                .replace(",", ".")
+        );
+
+
+    if (
+        isNaN(antigoNumero) ||
+        isNaN(atualNumero) ||
+        antigoNumero <= 0 ||
+        atualNumero <= 0
+    ) {
+
+        alert(
+            "❌ Digite valores válidos."
+        );
+
+        return;
+    }
+
+
+    localStorage.setItem(
+        "produtoPrecoAntigo",
+        antigoNumero.toFixed(2)
+    );
+
+
+    localStorage.setItem(
+        "produtoPreco",
+        atualNumero.toFixed(2)
+    );
+
+
+    valorProduto =
+        atualNumero;
+
+
+    document.getElementById(
+        "precoAntigo"
+    ).textContent =
+        formatarMoeda(
+            antigoNumero
+        );
+
+
+    document.getElementById(
+        "precoAtual"
+    ).textContent =
+        formatarMoeda(
+            atualNumero
+        );
+
+
+    document.getElementById(
+        "subtotal"
+    ).textContent =
+        formatarMoeda(
+            atualNumero
+        );
+
+
+    document.getElementById(
+        "modalSubtotal"
+    ).textContent =
+        formatarMoeda(
+            atualNumero
+        );
+
+
+    atualizarTotal();
+
+
+    alert(
+        "✅ Valor alterado com sucesso!"
+    );
+}
+
+
+// =====================================================
+// 📷 TROCAR FOTO
+// =====================================================
+
+function trocarFoto(event) {
+
+    if (!modoAdmAtivo) {
+
+        alert(
+            "❌ Somente o administrador pode trocar a foto."
+        );
+
+        return;
+    }
+
+
+    const arquivo =
+        event.target.files[0];
+
+
+    if (!arquivo) {
+        return;
+    }
+
+
+    if (
+        !arquivo.type.startsWith("image/")
+    ) {
+
+        alert(
+            "❌ Escolha um arquivo de imagem."
+        );
+
+        return;
+    }
+
+
+    const leitor =
+        new FileReader();
+
+
+    leitor.onload =
+        function(e) {
+
+            const imagem =
+                new Image();
+
+
+            imagem.onload =
+                function() {
+
+                    const canvas =
+                        document.createElement(
+                            "canvas"
+                        );
+
+
+                    const tamanhoMaximo =
+                        1000;
+
+
+                    let largura =
+                        imagem.width;
+
+
+                    let altura =
+                        imagem.height;
+
+
+                    if (
+                        largura >
+                        tamanhoMaximo
+                    ) {
+
+                        altura =
+                            altura *
+                            tamanhoMaximo /
+                            largura;
+
+                        largura =
+                            tamanhoMaximo;
+                    }
+
+
+                    if (
+                        altura >
+                        tamanhoMaximo
+                    ) {
+
+                        largura =
+                            largura *
+                            tamanhoMaximo /
+                            altura;
+
+                        altura =
+                            tamanhoMaximo;
+                    }
+
+
+                    canvas.width =
+                        largura;
+
+
+                    canvas.height =
+                        altura;
+
+
+                    const contexto =
+                        canvas.getContext(
+                            "2d"
+                        );
+
+
+                    contexto.drawImage(
+                        imagem,
+                        0,
+                        0,
+                        largura,
+                        altura
+                    );
+
+
+                    const foto =
+                        canvas.toDataURL(
+                            "image/jpeg",
+                            0.80
+                        );
+
+
+                    try {
+
+                        localStorage.setItem(
+                            "produtoFoto",
+                            foto
+                        );
+
+
+                        document.getElementById(
+                            "imgProduto"
+                        ).src = foto;
+
+
+                        alert(
+                            "✅ Foto alterada com sucesso!"
+                        );
+
+
+                    } catch (erro) {
+
+                        alert(
+                            "❌ Não foi possível salvar a foto. Tente uma imagem menor."
+                        );
+                    }
+
+                };
+
+
+            imagem.src =
+                e.target.result;
+
+        };
+
+
+    leitor.readAsDataURL(
+        arquivo
+    );
+
+
+    event.target.value = "";
+}
+
+
+// =====================================================
+// 🔄 RESTAURAR FOTO
+// =====================================================
+
+function restaurarFotoPadrao() {
+
+    if (!modoAdmAtivo) {
+        return;
+    }
+
+
+    if (
+        !confirm(
+            "Deseja restaurar a foto original?"
+        )
+    ) {
+
+        return;
+    }
+
+
+    localStorage.removeItem(
+        "produtoFoto"
+    );
+
+
+    document.getElementById(
+        "imgProduto"
+    ).src =
+        FOTO_PADRAO;
+
+
+    alert(
+        "✅ Foto original restaurada!"
+    );
+}
+
+
+// =====================================================
+// 📦 ATUALIZAR ESTOQUE
+// =====================================================
+
+function atualizarExibicaoEstoque() {
+
+    salvarEstoque();
+
+
+    document.getElementById(
+        "quantidadeEstoque"
+    ).textContent =
+        estoque;
+
+
+    document.getElementById(
+        "inputEstoqueAtual"
+    ).value =
+        estoque;
+
+
+    const badge =
+        document.getElementById(
+            "badgeEstoque"
+        );
+
+
+    const cartao =
+        document.getElementById(
+            "cartaoProduto"
+        );
+
+
+    const btnComprar =
+        document.getElementById(
+            "btnComprar"
+        );
+
+
+    if (estoque === 0) {
+
+        badge.className =
+            "estoque-badge estoque-esgotado";
+
+
+        badge.innerHTML =
+            '<i class="bi bi-x-circle"></i> Produto Esgotado!';
+
+
+        cartao.classList.add(
+            "sem-estoque"
+        );
+
+
+        btnComprar.disabled = true;
+
+
+        btnComprar.innerHTML =
+            '<i class="bi bi-x-circle"></i> Indisponível';
+
+
+    } else if (estoque <= 5) {
+
+        badge.className =
+            "estoque-badge estoque-baixo";
+
+
+        badge.innerHTML =
+            `<i class="bi bi-exclamation-triangle"></i>
+            Estoque Baixo:
+            <strong>${estoque}</strong> unidades`;
+
+
+        cartao.classList.remove(
+            "sem-estoque"
+        );
+
+
+        btnComprar.disabled = false;
+
+
+        btnComprar.innerHTML =
+            '<i class="bi bi-cart-check me-2"></i>Comprar';
+
+
+    } else {
+
+        badge.className =
+            "estoque-badge estoque-normal";
+
+
+        badge.innerHTML =
+            `<i class="bi bi-box-seam"></i>
+            Estoque:
+            <strong>${estoque}</strong> unidades`;
+
+
+        cartao.classList.remove(
+            "sem-estoque"
+        );
+
+
+        btnComprar.disabled = false;
+
+
+        btnComprar.innerHTML =
+            '<i class="bi bi-cart-check me-2"></i>Comprar';
+    }
+}
+
+
+// =====================================================
+// ✏️ EDITAR ESTOQUE
+// =====================================================
+
+function editarEstoque() {
+
+    if (!modoAdmAtivo) {
+
+        alert(
+            "❌ Acesso permitido somente ao administrador."
+        );
+
+        return;
+    }
+
+
+    const novoValor =
+        prompt(
+            "Digite a nova quantidade em estoque:",
+            estoque
+        );
+
+
+    if (novoValor !== null) {
+
+        const valor =
+            Number(novoValor);
+
+
+        if (
+            Number.isInteger(valor) &&
+            valor >= 0
+        ) {
+
+            estoque =
+                valor;
+
+
+            salvarEstoque();
+
+            atualizarExibicaoEstoque();
+
+
+            alert(
+                `✅ Estoque atualizado para ${estoque} unidades!`
+            );
+
+
+        } else {
+
+            alert(
+                "❌ Digite uma quantidade inteira válida."
+            );
+        }
+    }
+}
+
+
+// =====================================================
+// 📦 DEFINIR ESTOQUE
+// =====================================================
+
+function definirEstoque() {
+
+    if (!modoAdmAtivo) {
+
+        alert(
+            "❌ Acesso permitido somente ao administrador."
+        );
+
+        return;
+    }
+
+
+    const valor =
+        Number(
+            document.getElementById(
+                "inputEstoqueAtual"
+            ).value
+        );
+
+
+    if (
+        Number.isInteger(valor) &&
+        valor >= 0
+    ) {
+
+        estoque =
+            valor;
+
+
+        salvarEstoque();
+
+        atualizarExibicaoEstoque();
+
+
+        alert(
+            `✅ Estoque definido para ${estoque} unidades!`
+        );
+
+
+    } else {
+
+        alert(
+            "❌ Digite uma quantidade inteira válida."
+        );
+    }
+}
+
+
+// =====================================================
+// ➕ ADICIONAR ESTOQUE
+// =====================================================
+
+function adicionarEstoque() {
+
+    if (!modoAdmAtivo) {
+
+        alert(
+            "❌ Acesso permitido somente ao administrador."
+        );
+
+        return;
+    }
+
+
+    const adicionar =
+        Number(
+            document.getElementById(
+                "inputAdicionar"
+            ).value
+        );
+
+
+    if (
+        Number.isInteger(adicionar) &&
+        adicionar > 0
+    ) {
+
+        estoque += adicionar;
+
+
+        salvarEstoque();
+
+
+        document.getElementById(
+            "inputAdicionar"
+        ).value = "";
+
+
+        atualizarExibicaoEstoque();
+
+
+        alert(
+            `✅ Adicionado ${adicionar} unidades!\nTotal: ${estoque}`
+        );
+
+
+    } else {
+
+        alert(
+            "❌ Digite um número inteiro maior que zero."
+        );
+    }
+}
+
+
+// =====================================================
+// ➖ VENDA EXTERNA
+// =====================================================
+
+function registrarVendaExterna() {
+
+    if (!modoAdmAtivo) {
+
+        alert(
+            "❌ Acesso permitido somente ao administrador."
+        );
+
+        return;
+    }
+
+
+    const quantidade =
+        Number(
+            document.getElementById(
+                "inputVendaExterna"
+            ).value
+        );
+
+
+    if (
+        !Number.isInteger(quantidade) ||
+        quantidade <= 0
+    ) {
+
+        alert(
+            "❌ Digite uma quantidade válida."
+        );
+
+        return;
+    }
+
+
+    if (quantidade > estoque) {
+
+        alert(
+            `❌ Estoque insuficiente!\nDisponível: ${estoque}`
+        );
+
+        return;
+    }
+
+
+    if (
+        confirm(
+            `Confirmar venda de ${quantidade} unidades?\n\nEstoque vai de ${estoque} para ${estoque - quantidade}`
+        )
+    ) {
+
+        estoque -= quantidade;
+
+
+        salvarEstoque();
+
+
+        document.getElementById(
+            "inputVendaExterna"
+        ).value = "";
+
+
+        atualizarExibicaoEstoque();
+
+
+        alert(
+            `✅ Venda registrada!\nEstoque atual: ${estoque}`
+        );
+    }
+}
+
+
+// =====================================================
+// 🎉 TEXTO DE DESTAQUE
+// =====================================================
+
+function salvarTextoDestaque() {
+
+    if (!modoAdmAtivo) {
+        return;
+    }
+
+
+    const texto =
+        document.getElementById(
+            "inputTextoDestaque"
+        ).value.trim();
+
+
+    if (texto) {
+
+        document.getElementById(
+            "textoDestaque"
+        ).textContent =
+            texto;
+
+
+        document.getElementById(
+            "caixaTextoDestaque"
+        ).style.display =
+            "block";
+
+
+        localStorage.setItem(
+            "textoDestaque",
+            texto
+        );
+
+
+        localStorage.setItem(
+            "textoDestaqueAtivo",
+            "sim"
+        );
+    }
+}
+
+
+function ocultarTextoDestaque() {
+
+    if (!modoAdmAtivo) {
+        return;
+    }
+
+
+    document.getElementById(
+        "caixaTextoDestaque"
+    ).style.display =
+        "none";
+
+
+    document.getElementById(
+        "inputTextoDestaque"
+    ).value = "";
+
+
+    localStorage.setItem(
+        "textoDestaqueAtivo",
+        "nao"
+    );
+}
+
+
+// =====================================================
+// 🚚 CEP
+// =====================================================
+
+function aplicarMascaraCEP(campo) {
+
+    let valor =
+        campo.value.replace(
+            /\D/g,
+            ""
+        );
+
+
+    if (valor.length > 5) {
+
+        valor =
+            valor.slice(0, 5) +
+            "-" +
+            valor.slice(5);
+    }
+
+
+    campo.value =
+        valor;
+}
+
+
+function validarCEP() {
+
+    const cep =
+        document.getElementById(
+            "cep"
+        ).value.replace(
+            /\D/g,
+            ""
+        );
+
+
+    const valido =
+        cep.length === 8;
+
+
+    document.getElementById(
+        "erroCEP"
+    ).style.display =
+        valido
+            ? "none"
+            : "block";
+
+
+    document.getElementById(
+        "cep"
+    ).classList.toggle(
+        "input-invalido",
+        !valido &&
+        cep.length > 0
+    );
+
+
+    return valido;
+}
+
+
+// =====================================================
+// 🚚 CALCULAR FRETE
+// =====================================================
+
+function calcularFrete() {
+
+    if (!validarCEP()) {
+
+        alert(
+            "Digite um CEP válido com 8 dígitos!"
+        );
+
+        return;
+    }
+
+
+    document.getElementById(
+        "opcoesFrete"
+    ).classList.remove(
+        "d-none"
+    );
+
+
+    document.getElementById(
+        "caixaTotal"
+    ).classList.remove(
+        "d-none"
+    );
+
+
+    valorFreteEscolhido =
+        0;
+
+
+    freteSelecionado =
+        false;
+
+
+    document.getElementById(
+        "erroFrete"
+    ).style.display =
+        "block";
+
+
+    document.getElementById(
+        "valorFrete"
+    ).textContent =
+        "R$ 0,00";
+
+
+    atualizarTotal();
+}
+
+
+// =====================================================
+// 🚚 SELECIONAR FRETE
+// =====================================================
+
+function selecionarFrete(elemento) {
+
+    document
+        .querySelectorAll(
+            ".frete-option"
+        )
+        .forEach(
+            el =>
+                el.classList.remove(
+                    "selected"
+                )
+        );
+
+
+    elemento.classList.add(
+        "selected"
+    );
+
+
+    elemento.querySelector(
+        "input"
+    ).checked = true;
+
+
+    freteSelecionado =
+        true;
+
+
+    document.getElementById(
+        "erroFrete"
+    ).style.display =
+        "none";
+
+
+    valorFreteEscolhido =
+        parseFloat(
+            elemento.dataset.valor
+        );
+
+
+    atualizarTotal();
+}
+
+
+// =====================================================
+// 💰 TOTAL
+// =====================================================
+
+function atualizarTotal() {
+
+    const total =
+        valorProduto +
+        valorFreteEscolhido;
+
+
+    document.getElementById(
+        "valorFrete"
+    ).textContent =
+        formatarMoeda(
+            valorFreteEscolhido
+        );
+
+
+    document.getElementById(
+        "valorTotal"
+    ).textContent =
+        formatarMoeda(
+            total
+        );
+}
+
+
+// =====================================================
+// 💳 TOTAL MODAL
+// =====================================================
+
+function atualizarTotalModal() {
+
+    const total =
+        valorProduto +
+        valorFreteEscolhido;
+
+
+    document.getElementById(
+        "modalNomeProduto"
+    ).textContent =
+        document.getElementById(
+            "nomeProduto"
+        ).textContent;
+
+
+    document.getElementById(
+        "modalSubtotal"
+    ).textContent =
+        formatarMoeda(
+            valorProduto
+        );
+
+
+    document.getElementById(
+        "modalValorFrete"
+    ).textContent =
+        formatarMoeda(
+            valorFreteEscolhido
+        );
+
+
+    document.getElementById(
+        "modalValorTotal"
+    ).textContent =
+        formatarMoeda(
+            total
+        );
+
+
+    document.getElementById(
+        "valorPix"
+    ).textContent =
+        formatarMoeda(
+            total
+        );
+}
+
+
+// =====================================================
+// 💰 FORMATA MOEDA
+// =====================================================
+
+function formatarMoeda(valor) {
+
+    return "R$ " +
+        Number(valor)
+            .toFixed(2)
+            .replace(
+                ".",
+                ","
+            );
+}
+
+
+// =====================================================
+// 💳 FORMATA CARTÃO
+// =====================================================
+
+function formatarNumeroCartao(campo) {
+
+    let valor =
+        campo.value
+            .replace(/\D/g, "")
+            .slice(0, 16);
+
+
+    let resultado = "";
+
+
+    for (
+        let i = 0;
+        i < valor.length;
+        i++
+    ) {
+
+        if (
+            i > 0 &&
+            i % 4 === 0
+        ) {
+
+            resultado += " ";
+        }
+
+
+        resultado +=
+            valor[i];
+    }
+
+
+    campo.value =
+        resultado;
+}
+
+
+// =====================================================
+// 📅 FORMATA VALIDADE
+// =====================================================
+
+function formatarValidade(campo) {
+
+    let valor =
+        campo.value
+            .replace(/\D/g, "")
+            .slice(0, 4);
+
+
+    if (valor.length > 2) {
+
+        valor =
+            valor.slice(0, 2) +
+            "/" +
+            valor.slice(2);
+    }
+
+
+    campo.value =
+        valor;
+}
+
+
+// =====================================================
+// 💳 VALIDA NÚMERO
+// =====================================================
+
+function validarNumCartao() {
+
+    const valor =
+        document.getElementById(
+            "numCartao"
+        ).value.replace(
+            /\D/g,
+            ""
+        );
+
+
+    const valido =
+        valor.length >= 13 &&
+        valor.length <= 16;
+
+
+    document.getElementById(
+        "erroNumCartao"
+    ).style.display =
+        valido
+            ? "none"
+            : "block";
+
+
+    document.getElementById(
+        "numCartao"
+    ).classList.toggle(
+        "input-invalido",
+        !valido &&
+        valor.length > 0
+    );
+
+
+    verificarFormularioCompleto();
+
+
+    return valido;
+}
+
+
+// =====================================================
+// 📅 VALIDA VALIDADE
+// =====================================================
+
+function validarValidade() {
+
+    const valor =
+        document.getElementById(
+            "validade"
+        ).value;
+
+
+    const regex =
+        /^(0[1-9]|1[0-2])\/\d{2}$/;
+
+
+    const valido =
+        regex.test(
+            valor
+        );
+
+
+    document.getElementById(
+        "erroValidade"
+    ).style.display =
+        valido
+            ? "none"
+            : "block";
+
+
+    document.getElementById(
+        "validade"
+    ).classList.toggle(
+        "input-invalido",
+        !valido &&
+        valor.length > 0
+    );
+
+
+    verificarFormularioCompleto();
+
+
+    return valido;
+}
+
+
+// =====================================================
+// 🔢 VALIDA CVV
+// =====================================================
+
+function validarCVV() {
+
+    const valor =
+        document.getElementById(
+            "cvv"
+        ).value.replace(
+            /\D/g,
+            ""
+        );
+
+
+    const valido =
+        valor.length >= 3 &&
+        valor.length <= 4;
+
+
+    document.getElementById(
+        "erroCVV"
+    ).style.display =
+        valido
+            ? "none"
+            : "block";
+
+
+    document.getElementById(
+        "cvv"
+    ).classList.toggle(
+        "input-invalido",
+        !valido &&
+        valor.length > 0
+    );
+
+
+    verificarFormularioCompleto();
+
+
+    return valido;
+}
+
+
+// =====================================================
+// 👤 VALIDA NOME
+// =====================================================
+
+function validarNome() {
+
+    const valor =
+        document.getElementById(
+            "nomeCartao"
+        ).value.trim();
+
+
+    const valido =
+        valor.length >= 5 &&
+        valor.includes(" ");
+
+
+    document.getElementById(
+        "erroNome"
+    ).style.display =
+        valido
+            ? "none"
+            : "block";
+
+
+    document.getElementById(
+        "nomeCartao"
+    ).classList.toggle(
+        "input-invalido",
+        !valido &&
+        valor.length > 0
+    );
+
+
+    verificarFormularioCompleto();
+
+
+    return valido;
+}
+
+
+// =====================================================
+// ✅ VERIFICA FORMULÁRIO
+// =====================================================
+
+function verificarFormularioCompleto() {
+
+    const numero =
+        document.getElementById(
+            "numCartao"
+        ).value.replace(
+            /\D/g,
+            ""
+        );
+
+
+    const validade =
+        document.getElementById(
+            "validade"
+        ).value;
+
+
+    const cvv =
+        document.getElementById(
+            "cvv"
+        ).value.replace(
+            /\D/g,
+            ""
+        );
+
+
+    const nome =
+        document.getElementById(
+            "nomeCartao"
+        ).value.trim();
+
+
+    const numeroValido =
+        numero.length >= 13 &&
+        numero.length <= 16;
+
+
+    const validadeValida =
+        /^(0[1-9]|1[0-2])\/\d{2}$/
+            .test(validade);
+
+
+    const cvvValido =
+        cvv.length >= 3 &&
+        cvv.length <= 4;
+
+
+    const nomeValido =
+        nome.length >= 5 &&
+        nome.includes(" ");
+
+
+    const tudoCerto =
+        freteSelecionado &&
+        numeroValido &&
+        validadeValida &&
+        cvvValido &&
+        nomeValido &&
+        estoque > 0;
+
+
+    document.getElementById(
+        "btnFinalizar"
+    ).disabled =
+        !tudoCerto;
+}
+
+
+// =====================================================
+// 🛒 PAGAMENTO
+// =====================================================
+
+document
+    .getElementById(
+        "formPagamentoCartao"
+    )
+    .addEventListener(
+        "submit",
+        function(e) {
+
+            e.preventDefault();
+
+
+            if (
+                !document.getElementById(
+                    "btnFinalizar"
+                ).disabled &&
+                estoque > 0
+            ) {
+
+                estoque--;
+
+
+                salvarEstoque();
+
+
+                atualizarExibicaoEstoque();
+
+
+                alert(
+                    `✅ Pagamento realizado com sucesso!\n\nObrigado pela compra!\n\nEstoque restante: ${estoque}`
+                );
+
+
+                bootstrap.Modal
+                    .getInstance(
+                        document.getElementById(
+                            "modalPagamento"
+                        )
+                    )
+                    .hide();
+
+
+            } else if (
+                estoque === 0
+            ) {
+
+                alert(
+                    "❌ Produto esgotado!"
+                );
+            }
+        }
+    );
+
+
+// =====================================================
+// 📋 COPIAR PIX
+// =====================================================
+
+function copiarPix() {
+
+    const codigo =
+        document.getElementById(
+            "codigoPix"
+        );
+
+
+    if (
+        navigator.clipboard &&
+        navigator.clipboard.writeText
+    ) {
+
+        navigator.clipboard
+            .writeText(
+                codigo.value
+            )
+
+            .then(
+                () =>
+                    alert(
+                        "Chave Pix copiada! ✅"
+                    )
+            )
+
+            .catch(
+                () =>
+                    copiarPixManual()
+            );
+
+    } else {
+
+        copiarPixManual();
+    }
+}
+
+
+function copiarPixManual() {
+
+    const codigo =
+        document.getElementById(
+            "codigoPix"
+        );
+
+
+    codigo.select();
+
+
+    alert(
+        "Copie manualmente a chave Pix."
+    );
+}
+
+
+// =====================================================
+// 🚀 INICIALIZAÇÃO
+// =====================================================
+
+window.addEventListener(
+    "DOMContentLoaded",
+    function() {
+
+        /*
+            IMPORTANTE:
+
+            A página SEMPRE começa como cliente.
+
+            Não existe mais nenhuma leitura de:
+            localStorage.getItem("modoAdministrador")
+
+            Portanto o administrador precisa digitar
+            a senha novamente após atualizar a página.
+        */
+
+        modoAdmAtivo = false;
+
+
+        // CARREGA PRODUTO
+
+        carregarProduto();
+
+
+        // CARREGA ESTOQUE
+
+        estoque =
+            carregarEstoque();
+
+
+        atualizarExibicaoEstoque();
+
+
+        // GARANTE QUE O PAINEL ADMIN COMECE ESCONDIDO
+
+        document.getElementById(
+            "painelAdm"
+        ).style.display = "none";
+
+
+        document.getElementById(
+            "btnEditarNome"
+        ).classList.add("d-none");
+
+
+        document.getElementById(
+            "btnEditarPrecos"
+        ).classList.add("d-none");
+
+
+        document.getElementById(
+            "btnEditarEstoque"
+        ).classList.add("d-none");
+
+
+        document.getElementById(
+            "btnTrocarFoto"
+        ).style.display = "none";
+
+
+        // BOTÃO ADMIN VOLTA AO ESTADO NORMAL
+
+        const botao =
+            document.getElementById(
+                "btnAcessoAdm"
+            );
+
+
+        botao.innerHTML =
+            '<i class="bi bi-gear"></i> Administrador';
+
+
+        botao.classList.remove(
+            "btn-success"
+        );
+
+
+        botao.classList.add(
+            "btn-outline-dark"
+        );
+
+
+        // CARREGA TEXTO DE DESTAQUE
+
+        const textoSalvo =
+            localStorage.getItem(
+                "textoDestaque"
+            );
+
+
+        const destaqueAtivo =
+            localStorage.getItem(
+                "textoDestaqueAtivo"
+            );
+
+
+        if (
+            textoSalvo &&
+            destaqueAtivo !== "nao"
+        ) {
+
+            document.getElementById(
+                "textoDestaque"
+            ).textContent =
+                textoSalvo;
+
+
+            document.getElementById(
+                "inputTextoDestaque"
+            ).value =
+                textoSalvo;
+
+
+            document.getElementById(
+                "caixaTextoDestaque"
+            ).style.display =
+                "block";
+        }
+
+    }
+
+);
+
+</script>
+
+</body>
+
+</html>
+```
