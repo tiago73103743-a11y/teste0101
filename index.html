@@ -8,8 +8,9 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" />
     
-    <!-- Mercado Pago SDK -->
-    <script src="https://sdk.mercadopago.com/js/v2"></script>
+
+    
+    
     
     <style>
         :root {
@@ -52,16 +53,7 @@
             background-color: #20ba5a;
             border-color: #20ba5a;
         }
-        .btn-mercadopago {
-            background-color: #009ee3;
-            border-color: #009ee3;
-            color: white;
-        }
-        .btn-mercadopago:hover {
-            background-color: #008ed6;
-            border-color: #008ed6;
-            color: white;
-        }
+    
         .admin-secreto {
             position: fixed;
             top: 0;
@@ -282,16 +274,7 @@
                     
                     <hr>
                     
-                    <!-- PAGAMENTO MERCADO PAGO -->
-                    <div class="card bg-light mb-3">
-                        <div class="card-body">
-                            <h6 class="fw-bold text-primary mb-3"><i class="bi bi-credit-card-2-front me-2"></i>Pagar com Mercado Pago</h6>
-                            <p class="text-muted small mb-3">Você será redirecionado para a página segura do Mercado Pago</p>
-                            <button id="btnMercadoPago" class="btn btn-mercadopago w-100 py-2" onclick="pagarMercadoPago()">
-                                <i class="bi bi-shield-lock me-2"></i> Pagar com Mercado Pago
-                            </button>
-                        </div>
-                    </div>
+                   
                     
                     <!-- ÁREA PIX -->
                     <div class="card bg-light mb-3">
@@ -354,19 +337,7 @@
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <!-- Mercado Pago -->
-                    <h6 class="fw-bold mb-2 text-primary">Credenciais Mercado Pago (Teste)</h6>
-                    <div class="mb-2">
-                        <label class="form-label">Public Key (Chave Pública)</label>
-                       <input type="text" id="mpPublicKey" class="form-control" 
-       placeholder="APP_USR-fc6ec203-3c68-41fc-9b4b-5b417189336e">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Access Token (Token de Acesso)</label>
-                        <input type="password" id="mpAccessToken" class="form-control" 
-                               placeholder="APP_USR-6747076560961572-103109-d16ca06c7738786c12347461362c9b37-1193497569">
-                        <small class="text-muted">O token de produção só será usado depois que tudo estiver testado</small>
-                    </div>
+                    
                     <hr>
                     <h6 class="fw-bold mb-2">Dados do PIX</h6>
                     <div class="mb-2">
@@ -419,27 +390,7 @@
         let freteSelecionado = { valor: 0, nome: "Retirada no Local" };
         let totalCompra = 0;
 
-        let configLoja = {
-            mercadoPago: { publicKey: "", accessToken: "" },
-            pix: { chave: "", nome: "", qrCodeImagem: "" }
-        };
-
-        function formatarMoeda(valor) {
-            if (valor === null || valor === undefined || isNaN(valor)) return '';
-            return 'R$ ' + Number(valor).toFixed(2).replace('.', ',');
-        }
-
-        function inicializarMercadoPago() {
-            if (!configLoja.mercadoPago.publicKey) return;
-            mp = new MercadoPago(configLoja.mercadoPago.publicKey, { locale: 'pt-BR' });
-        }
-
-        async function pagarMercadoPago() {
-            if (!mp) {
-                alert('⚠️ Cadastre a Public Key do Mercado Pago nas Configurações primeiro!');
-                abrirConfigLoja();
-                return;
-            }
+      
             if (!produtoAtual) return;
 
             const descricao = produtoAtual.nome + (freteSelecionado.valor > 0 ? ` - Frete: ${freteSelecionado.nome}` : '');
@@ -472,26 +423,9 @@
                 } else {
                     alert('❌ Erro ao gerar pagamento. Verifique as credenciais.');
                 }
-            } catch (erro) {
-                console.error('Erro Mercado Pago:', erro);
-                alert('❌ Erro: ' + erro.message);
-            }
-        }
+          
 
-        async function gerarLinkPagamento(preferencia) {
-            const token = configLoja.mercadoPago.accessToken;
-            if (!token) {
-                alert('⚠️ Cadastre também o Access Token nas Configurações!');
-                return null;
-            }
-
-            try {
-                const resposta = await fetch('https://api.mercadopago.com/checkout/preferences', {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    },
+                
                     body: JSON.stringify(preferencia)
                 });
 
@@ -559,22 +493,21 @@
             if (salvas) {
                 configLoja = JSON.parse(salvas);
             }
-            document.getElementById("mpPublicKey").value = configLoja.mercadoPago.publicKey || "";
-            document.getElementById("mpAccessToken").value = configLoja.mercadoPago.accessToken || "";
+            
             document.getElementById("configChavePix").value = configLoja.pix.chave || "";
             document.getElementById("configNomePix").value = configLoja.pix.nome || "";
             atualizarExibicaoDados();
-            inicializarMercadoPago();
+           
         }
 
         function salvarConfiguracoes() {
-            configLoja.mercadoPago.publicKey = document.getElementById("mpPublicKey").value.trim();
-            configLoja.mercadoPago.accessToken = document.getElementById("mpAccessToken").value.trim();
+         
             configLoja.pix.chave = document.getElementById("configChavePix").value.trim();
             configLoja.pix.nome = document.getElementById("configNomePix").value.trim();
             
             localStorage.setItem("configLoja", JSON.stringify(configLoja));
-            inicializarMercadoPago();
+
+            
             alert("✅ Configurações salvas!");
             bootstrap.Modal.getInstance(document.getElementById('modalConfigLoja')).hide();
         }
