@@ -4,14 +4,35 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <title>Loja - Compre Agora</title>
-    <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet" />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" />
-    
 
-    
-    
-    
+    <!-- ✅ FIREBASE - COLOQUE SUAS CHAVES ABAIXO! -->
+    <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+   <!-- ✅ FIREBASE — CÓDIGO PRONTO -->
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyClY_QixJAk8TzB8dh9tjC7Hvha-WRpU-4",
+    authDomain: "e-mail-2fc5e.firebaseapp.com",
+    projectId: "e-mail-2fc5e",
+    storageBucket: "e-mail-2fc5e.firebasestorage.app",
+    messagingSenderId: "380410495404",
+    appId: "1:380410495404:web:a6efba28de4d4bb3513a09"
+  };
+  firebase.initializeApp(firebaseConfig);
+</script>
+<!-- ✅ FIM DO FIREBASE -->
+
+    <!-- ✅ FIM DO FIREBASE -->
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <!-- ✅ FIM DO FIREBASE -->
+
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet" />
+
     <style>
         :root {
             --bg-imagem: url('sorvete/fundo-cabecalho.jpg');
@@ -53,7 +74,6 @@
             background-color: #20ba5a;
             border-color: #20ba5a;
         }
-    
         .admin-secreto {
             position: fixed;
             top: 0;
@@ -168,9 +188,54 @@
         .pix-copia:hover {
             background-color: #d4edda !important;
         }
+        /* Estilos do Login */
+        .login-card {
+            max-width: 450px;
+            margin: 2rem auto;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .usuario-logado {
+            display: none;
+        }
+        .logado .form-login {
+            display: none;
+        }
+        .logado .usuario-logado {
+            display: block;
+        }
     </style>
 </head>
 <body>
+
+    <!-- 🔐 ÁREA DE LOGIN -->
+    <section class="py-3">
+        <div class="container">
+            <div id="areaLogin" class="login-card card p-4">
+                <div class="form-login">
+                    <h5 class="text-center mb-3"><i class="bi bi-box-arrow-in-right me-2"></i>Acesso</h5>
+                    <div class="mb-3">
+                        <label class="form-label">Seu e-mail</label>
+                        <input type="email" id="emailLogin" class="form-control" placeholder="seu@email.com">
+                    </div>
+                    <button class="btn btn-success w-100" onclick="enviarLinkLogin()">
+                        <i class="bi bi-send me-1"></i> Enviar link de acesso
+                    </button>
+                    <p class="text-muted small mt-3 text-center">
+                        Você vai receber um link no e-mail — é só clicar e entrar!
+                    </p>
+                </div>
+                <div class="usuario-logado text-center">
+                    <h6 class="mb-2">Bem-vindo(a)! ✅</h6>
+                    <p id="emailUsuario" class="text-muted mb-3"></p>
+                    <button class="btn btn-outline-danger" onclick="sairLogin()">
+                        <i class="bi bi-box-arrow-right me-1"></i> Sair
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <div class="admin-secreto" onclick="abrirModalSenhaAdm()"></div>
     <a href="https://wa.me/5531973124354" target="_blank" class="whatsapp-float" title="Fale pelo WhatsApp">
         <i class="bi bi-whatsapp"></i>
@@ -227,6 +292,21 @@
         </div>
     </section>
 
+    <!-- CARRINHO -->
+    <section class="py-4 bg-light border-top d-none" id="secaoCarrinho">
+      <div class="container px‑4 px‑lg‑5">
+        <h4 class="mb‑3"><i class="bi‑bi‑cart"></i> Meu Carrinho</h4>
+        <div id="listaCarrinho" class="mb‑3"></div>
+        <div class="d‑flex justify‑content‑between align‑items‑center">
+          <h5>Total: <span id="totalCarrinho" class="text‑success">R$ 0,00</span></h5>
+          <div>
+            <button class="btn btn‑outline‑secondary me‑2" onclick="limparCarrinho()">Limpar</button>
+            <button class="btn btn‑success" onclick="abrirModalCompraCarrinho()">Finalizar Compra</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- MODAL DE COMPRA -->
     <div class="modal fade" id="modalCompra" tabindex="-1" aria-labelledby="modalCompraLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
@@ -274,8 +354,6 @@
                     
                     <hr>
                     
-                   
-                    
                     <!-- ÁREA PIX -->
                     <div class="card bg-light mb-3">
                         <div class="card-body">
@@ -284,7 +362,7 @@
                                 <p class="text-muted">Cadastre o QR Code nas configurações</p>
                             </div>
                             <div class="mb-2">
-                                <label class="form-label fw-bold">Chave PIX:</label>
+                                class="form-label fw-bold">Chave PIX:</label>
                                 <div class="input-group pix-copia border rounded bg-white" onclick="copiarChavePix()">
                                     <span class="form-control bg-white border-0" id="exibeChavePix">Não cadastrada</span>
                                     <button class="btn btn-outline-success" type="button" title="Copiar chave">
@@ -317,7 +395,9 @@
                 <div class="modal-header bg-dark text-white">
                     <h5 class="modal-title"><i class="bi bi-shield-lock me-2"></i>Acesso Restrito</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-               class="mb-3">Digite a senha de administração:</p>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-2">Digite a senha de administração:</p>
                     <div class="mb-3">
                         <input type="password" class="form-control" id="senhaAdm" placeholder="Senha" 
                                onkeypress="if(event.key==='Enter')verificarSenhaAdm()">
@@ -337,7 +417,16 @@
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    
+                    <h6 class="fw-bold mb-2">Mercado Pago</h6>
+                    <div class="mb-2">
+                        <label class="form-label">Public Key (Chave Pública)</label>
+                        <input type="text" id="mpPublicKey" class="form-control" placeholder="APP_USR-...">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Access Token (Token de Acesso)</label>
+                        <input type="password" id="mpAccessToken" class="form-control" placeholder="APP_USR-...">
+                        <small class="text-muted">O token de produção só será usado depois que tudo estiver testado</small>
+                    </div>
                     <hr>
                     <h6 class="fw-bold mb-2">Dados do PIX</h6>
                     <div class="mb-2">
@@ -389,14 +478,89 @@
         let produtoAtual = null;
         let freteSelecionado = { valor: 0, nome: "Retirada no Local" };
         let totalCompra = 0;
+        let carrinho = [];
+        let totalCarrinho = 0;
+        let configLoja = {
+            mercadoPago: { publicKey: "", accessToken: "" },
+            pix: { chave: "", nome: "", qrCodeImagem: "" }
+        };
 
-      
+        // ========== LOGIN FIREBASE ==========
+        function enviarLinkLogin() {
+            const email = document.getElementById('emailLogin').value.trim();
+            if (!email) return alert('Digite seu e-mail!');
+            
+            const actionCodeSettings = {
+                url: window.location.href,
+                handleCodeInApp: true
+            };
+
+            firebase.auth().sendSignInLinkToEmail(email, actionCodeSettings)
+                .then(() => {
+                    window.localStorage.setItem('emailParaLogin', email);
+                    alert('✅ Link enviado! Verifique sua caixa de entrada e clique no link para entrar!');
+                })
+                .catch(erro => {
+                    console.error(erro);
+                    alert('Erro ao enviar: ' + erro.message);
+                });
+        }
+
+        function verificarLinkAutomatico() {
+            if (firebase.auth().isSignInWithEmailLink(window.location.href)) {
+                let email = window.localStorage.getItem('emailParaLogin');
+                if (!email) {
+                    email = prompt('Confirme seu e-mail:');
+                }
+                firebase.auth().signInWithEmailLink(email, window.location.href)
+                    .then(result => {
+                        window.localStorage.removeItem('emailParaLogin');
+                        atualizarTelaLogin(result.user);
+                    })
+                    .catch(erro => console.error('Erro login:', erro));
+            }
+        }
+
+        function sairLogin() {
+            firebase.auth().signOut().then(() => {
+                document.body.classList.remove('logado');
+                alert('✅ Saiu com sucesso!');
+            });
+        }
+
+        function atualizarTelaLogin(usuario) {
+            if (usuario) {
+                document.body.classList.add('logado');
+                document.getElementById('emailUsuario').textContent = usuario.email;
+            } else {
+                document.body.classList.remove('logado');
+            }
+        }
+
+        firebase.auth().onAuthStateChanged(atualizarTelaLogin);
+
+        // ========== FUNÇÕES DA LOJA ==========
+        function formatarMoeda(valor) {
+            if (valor === null || valor === undefined || isNaN(valor)) return '';
+            return 'R$ ' + Number(valor).toFixed(2).replace('.', ',');
+        }
+
+        function inicializarMercadoPago() {
+            if (!configLoja.mercadoPago.publicKey) return;
+            mp = new MercadoPago(configLoja.mercadoPago.publicKey, { locale: 'pt-BR' });
+        }
+
+        async function pagarMercadoPago() {
+            if (!mp) {
+                alert('⚠️ Cadastre a Public Key do Mercado Pago nas Configurações primeiro!');
+                abrirConfigLoja();
+                return;
+            }
             if (!produtoAtual) return;
 
             const descricao = produtoAtual.nome + (freteSelecionado.valor > 0 ? ` - Frete: ${freteSelecionado.nome}` : '');
 
             try {
-                // Cria a preferência de pagamento
                 const preferencia = {
                     items: [
                         {
@@ -414,35 +578,43 @@
                     auto_return: "approved"
                 };
 
-                // No GitHub Pages usamos a forma simplificada de Checkout Pro
-                // Gera o link de pagamento direto
                 const linkPagamento = await gerarLinkPagamento(preferencia);
-                
                 if (linkPagamento) {
                     window.open(linkPagamento, '_blank');
                 } else {
                     alert('❌ Erro ao gerar pagamento. Verifique as credenciais.');
                 }
-          
+            } catch (erro) {
+                console.error('Erro Mercado Pago:', erro);
+                alert('❌ Erro: ' + erro.message);
+            }
+        }
 
-                
+        async function gerarLinkPagamento(preferencia) {
+            const token = configLoja.mercadoPago.accessToken;
+            if (!token) {
+                alert('⚠️ Cadastre também o Access Token nas Configurações!');
+                return null;
+            }
+            try {
+                const resposta = await fetch('https://api.mercadopago.com/checkout/preferences', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
                     body: JSON.stringify(preferencia)
                 });
-
                 const dados = await resposta.json();
-                if (dados.init_point) {
-                    return dados.init_point;
-                } else {
-                    console.error('Erro API:', dados);
-                    return null;
-                }
+                if (dados.init_point) return dados.init_point;
+                console.error('Erro API:', dados);
+                return null;
             } catch (erro) {
                 console.error('Falha na conexão:', erro);
                 return null;
             }
         }
 
-        // Restante das funções mantidas iguais
         function carregarFundoCabecalho() {
             const fundoSalvo = localStorage.getItem('fundoCabecalho');
             if (fundoSalvo) {
@@ -493,363 +665,424 @@
             if (salvas) {
                 configLoja = JSON.parse(salvas);
             }
-            
+            document.getElementById("mpPublicKey").value = configLoja.mercadoPago.publicKey || "";
+            document.getElementById("mpAccessToken").value = configLoja.mercadoPago.accessToken || "";
             document.getElementById("configChavePix").value = configLoja.pix.chave || "";
             document.getElementById("configNomePix").value = configLoja.pix.nome || "";
             atualizarExibicaoDados();
-           
+            inicializarMercadoPago();
         }
 
         function salvarConfiguracoes() {
-         
+            configLoja.mercadoPago.publicKey = document.getElementById("mpPublicKey").value.trim();
+            configLoja.mercadoPago.accessToken = document.getElementById("mpAccessToken").value.trim();
             configLoja.pix.chave = document.getElementById("configChavePix").value.trim();
             configLoja.pix.nome = document.getElementById("configNomePix").value.trim();
             
             localStorage.setItem("configLoja", JSON.stringify(configLoja));
-
-            
+            inicializarMercadoPago();
             alert("✅ Configurações salvas!");
             bootstrap.Modal.getInstance(document.getElementById('modalConfigLoja')).hide();
         }
 
-        function atualizarExibicaoDados() {
-            const areaQr = document.getElementById("areaQrCodePix");
-            if (areaQr) {
-                if (configLoja.pix.qrCodeImagem) {
-                    areaQr.innerHTML = `
-                        <img src="${configLoja.pix.qrCodeImagem}" alt="QR Code PIX" 
-                             style="max-width: 220px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                        <p class="mt-2 text-muted small">Escaneie com a câmera do celular</p>
-                    `;
-                } else {
-                    areaQr.innerHTML = `<p class="text-muted">Cadastre o QR Code nas configurações</p>`;
-                }
-            }
-            document.getElementById("exibeChavePix").textContent = configLoja.pix.chave || "Não cadastrada";
-            document.getElementById("exibeNomePix").textContent = configLoja.pix.nome || "Não cadastrado";
-            const campoRapido = document.getElementById("chavePixRapida");
-            if (campoRapido && configLoja.pix.chave) {
-                campoRapido.value = configLoja.pix.chave;
-            }
+  function atualizarExibicaoDados() {
+    const areaQr = document.getElementById("areaQrCodePix");
+    if (areaQr) {
+        if (configLoja.pix.qrCodeImagem) {
+            areaQr.innerHTML = `
+                <img src="${configLoja.pix.qrCodeImagem}" alt="QR Code PIX" 
+                     style="max-width: 220px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                <p class="mt-2 text-muted small">Escaneie com a câmera do celular</p>
+            `;
+        } else {
+            areaQr.innerHTML = `<p class="text-muted">Cadastre o QR Code nas configurações</p>`;
         }
+    }
+    document.getElementById("exibeChavePix").textContent = configLoja.pix.chave || "Não cadastrada";
+    document.getElementById("exibeNomePix").textContent = configLoja.pix.nome || "Não cadastrado";
+    const campoRapido = document.getElementById("chavePixRapida");
+    if (campoRapido && configLoja.pix.chave) {
+        campoRapido.value = configLoja.pix.chave;
+    }
+}
 
-        function abrirConfigLoja() {
-            carregarConfiguracoes();
-            new bootstrap.Modal(document.getElementById('modalConfigLoja')).show();
-        }
+function abrirConfigLoja() {
+    carregarConfiguracoes();
+    new bootstrap.Modal(document.getElementById('modalConfigLoja')).show();
+}
 
-        function copiarChavePix() {
-            if (!configLoja.pix.chave) return alert("Cadastre a chave PIX nas configurações primeiro!");
-            navigator.clipboard.writeText(configLoja.pix.chave).then(() => alert("✅ Chave copiada!"));
-        }
+function copiarChavePix() {
+    if (!configLoja.pix.chave) return alert("Cadastre a chave PIX nas configurações primeiro!");
+    navigator.clipboard.writeText(configLoja.pix.chave).then(() => alert("✅ Chave copiada!"));
+}
 
-        function getClasseEstoque(qtd) {
-            if (qtd === 0) return 'estoque-esgotado';
-            if (qtd <= 5) return 'estoque-baixo';
-            return 'estoque-normal';
-        }
+function getClasseEstoque(qtd) {
+    if (qtd === 0) return 'estoque-esgotado';
+    if (qtd <= 5) return 'estoque-baixo';
+    return 'estoque-normal';
+}
 
-        function getTextoEstoque(qtd) {
-            if (qtd === 0) return '<i class="bi bi-x-circle"></i> Esgotado!';
-            if (qtd <= 5) return `<i class="bi bi-exclamation-triangle"></i> Pouco disponível: ${qtd}`;
-            return `<i class="bi bi-box-seam"></i> Disponível: ${qtd}`;
-        }
+function getTextoEstoque(qtd) {
+    if (qtd === 0) return '<i class="bi bi-x-circle"></i> Esgotado!';
+    if (qtd <= 5) return `<i class="bi bi-exclamation-triangle"></i> Pouco disponível: ${qtd}`;
+    return `<i class="bi bi-box-seam"></i> Disponível: ${qtd}`;
+}
 
-        function criarTemplateProduto(id) {
-            const p = produtos[id];
-            const precoAntigoHTML = p.precoAntigo 
-                ? `<span id="precoAntigo${id}" class="text-muted text-decoration-line-through me-1">${formatarMoeda(p.precoAntigo)}</span>`
-                : '';
-            return `
-            <div class="col mb-5 produto-card" id="colunaProduto${id}">
-                <div class="card h-100">
-                    <div class="foto-produto" id="containerFoto${id}" style="height:${p.alturaFoto}px;">
-                        <img id="imgProduto${id}" src="${p.foto}" alt="Produto" 
-                             style="height:100%;object-fit:${p.ajusteFoto};" />
-                        <button type="button" class="btn btn-sm btn-dark btn-trocar-foto"
-                                onclick="document.getElementById('inputNovaFoto${id}').click()">
-                            <i class="bi bi-camera"></i> Trocar
+function criarTemplateProduto(id) {
+    const p = produtos[id];
+    const precoAntigoHTML = p.precoAntigo 
+        ? `<span id="precoAntigo${id}" class="text-muted text-decoration-line-through me-1">${formatarMoeda(p.precoAntigo)}</span>`
+        : '';
+    return `
+    <div class="col mb-5 produto-card" id="colunaProduto${id}">
+        <div class="card h-100">
+            <div class="foto-produto" id="containerFoto${id}" style="height:${p.alturaFoto}px;">
+                <img id="imgProduto${id}" src="${p.foto}" alt="Produto" 
+                     style="height:100%;object-fit:${p.ajusteFoto};" />
+                <button type="button" class="btn btn-sm btn-dark btn-trocar-foto"
+                        onclick="document.getElementById('inputNovaFoto${id}').click()">
+                    <i class="bi bi-camera"></i> Trocar
+                </button>
+                <input type="file" id="inputNovaFoto${id}" accept="image/*" class="d-none"
+                       onchange="trocarFoto(event, 'imgProduto${id}', ${id})">
+            </div>
+            <div class="painel-tamanho-foto px-3">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <label class="form-label mb-0 small">Altura:</label>
+                    <input type="number" class="form-control form-control-sm input-tamanho-foto" 
+                           id="alturaFoto${id}" value="${p.alturaFoto}" min="80" max="400"
+                           onchange="aplicarTamanhoFoto(${id})">
+                    <span class="small">px</span>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <label class="form-label mb-0 small">Modo:</label>
+                    <select class="form-select form-select-sm" id="modoAjuste${id}"
+                            onchange="aplicarTamanhoFoto(${id})">
+                        <option value="cover" ${p.ajusteFoto==='cover'?'selected':''}>Cortar</option>
+                        <option value="contain" ${p.ajusteFoto==='contain'?'selected':''}>Ajustar</option>
+                        <option value="fill" ${p.ajusteFoto==='fill'?'selected':''}>Preencher</option>
+                    </select>
+                </div>
+            </div>
+            <div class="card-body p-4">
+                <div class="text-center">
+                    <h5 class="fw-bolder" id="nomeProduto${id}">${p.nome}</h5>
+                    <div class="d-flex justify-content-center gap-2 mb-2">
+                        <button type="button" class="btn btn-outline-secondary btn-sm btn-editar"
+                                onclick="editarCampo('nomeProduto${id}', ${id})">
+                            <i class="bi bi-pencil"></i>
                         </button>
-                        <input type="file" id="inputNovaFoto${id}" accept="image/*" class="d-none"
-                               onchange="trocarFoto(event, 'imgProduto${id}', ${id})">
+                        <button type="button" class="btn btn-outline-danger btn-sm btn-excluir"
+                                onclick="excluirProduto(${id})">
+                            <i class="bi bi-trash"></i>
+                        </button>
                     </div>
-                    <div class="painel-tamanho-foto px-3">
-                        <div class="d-flex align-items-center gap-2 mb-2">
-                            <label class="form-label mb-0 small">Altura:</label>
-                            <input type="number" class="form-control form-control-sm input-tamanho-foto" 
-                                   id="alturaFoto${id}" value="${p.alturaFoto}" min="80" max="400"
-                                   onchange="aplicarTamanhoFoto(${id})">
-                            <span class="small">px</span>
-                        </div>
-                        <div class="d-flex align-items-center gap-2">
-                            <label class="form-label mb-0 small">Modo:</label>
-                            <select class="form-select form-select-sm" id="modoAjuste${id}"
-                                    onchange="aplicarTamanhoFoto(${id})">
-                                <option value="cover" ${p.ajusteFoto==='cover'?'selected':''}>Cortar</option>
-                                <option value="contain" ${p.ajusteFoto==='contain'?'selected':''}>Ajustar</option>
-                                <option value="fill" ${p.ajusteFoto==='fill'?'selected':''}>Preencher</option>
-                            </select>
-                        </div>
+                    <div class="mb-2">
+                        <span id="badgeEstoque${id}" class="estoque-badge ${getClasseEstoque(p.estoque)}">
+                            ${getTextoEstoque(p.estoque)}
+                        </span>
                     </div>
-                    <div class="card-body p-4">
-                        <div class="text-center">
-                            <h5 class="fw-bolder" id="nomeProduto${id}">${p.nome}</h5>
-                            <div class="d-flex justify-content-center gap-2 mb-2">
-                                <button type="button" class="btn btn-outline-secondary btn-sm btn-editar"
-                                        onclick="editarCampo('nomeProduto${id}', ${id})">
-                                    <i class="bi bi-pencil"></i>
-                                </button>
-                                <button type="button" class="btn btn-outline-danger btn-sm btn-excluir"
-                                        onclick="excluirProduto(${id})">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </div>
-                            <div class="mb-2">
-                                <span id="badgeEstoque${id}" class="estoque-badge ${getClasseEstoque(p.estoque)}">
-                                    ${getTextoEstoque(p.estoque)}
-                                </span>
-                            </div>
-                            ${precoAntigoHTML}
-                            <strong id="precoAtual${id}" class="fs-5 text-success">
-                                ${formatarMoeda(p.precoAtual)}
-                            </strong>
-                            <div class="mt-2">
-                                <button type="button" class="btn btn-outline-secondary btn-sm btn-editar me-1"
-                                        onclick="editarPrecos(${id})">Preços</button>
-                                <button type="button" class="btn btn-outline-secondary btn-sm btn-editar"
-                                        onclick="editarEstoque(${id})">Estoque</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
-                        <div class="text-center">
-                            <button class="btn btn-success w-100" onclick="abrirModalCompra(${id})">
-                                <i class="bi bi-cart3 me-1"></i> Comprar
-                            </button>
-                        </div>
+                    ${precoAntigoHTML}
+                    <strong id="precoAtual${id}" class="fs-5 text-success">
+                        ${formatarMoeda(p.precoAtual)}
+                    </strong>
+                    <div class="mt-2">
+                        <button type="button" class="btn btn-outline-secondary btn-sm btn-editar me-1"
+                                onclick="editarPrecos(${id})">Preços</button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm btn-editar"
+                                onclick="editarEstoque(${id})">Estoque</button>
                     </div>
                 </div>
-            </div>`;
+            </div>
+            <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
+                <div class="text-center">
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-success w-100" onclick="adicionarAoCarrinho(${id})">
+                            <i class="bi-cart-plus me-1"></i> Adicionar ao carrinho
+                        </button>
+                        <button class="btn btn-success w-100" onclick="abrirModalCompra(${id})">
+                            <i class="bi-bolt me-1"></i> Comprar agora
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>`;
+}
+
+function salvarProdutoNoStorage(id) {
+    const p = produtos[id];
+    localStorage.setItem(`produto${id}Nome`, p.nome);
+    localStorage.setItem(`produto${id}PrecoAtual`, p.precoAtual);
+    if (p.precoAntigo !== null) {
+        localStorage.setItem(`produto${id}PrecoAntigo`, p.precoAntigo);
+        localStorage.setItem(`produto${id}TemAntigo`, 'sim');
+    } else {
+        localStorage.setItem(`produto${id}TemAntigo`, 'nao');
+        localStorage.removeItem(`produto${id}PrecoAntigo`);
+    }
+    localStorage.setItem(`produto${id}Estoque`, p.estoque);
+    localStorage.setItem(`produto${id}Foto`, p.foto);
+    localStorage.setItem(`produto${id}AlturaFoto`, p.alturaFoto);
+    localStorage.setItem(`produto${id}ModoAjuste`, p.ajusteFoto);
+    localStorage.setItem('ultimoIdProduto', String(proximoId - 1));
+}
+
+function carregarProdutoDoStorage(id) {
+    const prefix = `produto${id}`;
+    const nome = localStorage.getItem(`${prefix}Nome`);
+    if (!nome) return false;
+    const temAntigo = localStorage.getItem(`${prefix}TemAntigo`) === 'sim';
+    produtos[id] = {
+        nome: nome,
+        precoAtual: parseFloat(localStorage.getItem(`${prefix}PrecoAtual`) || '0'),
+        precoAntigo: temAntigo ? parseFloat(localStorage.getItem(`${prefix}PrecoAntigo`) || '0') : null,
+        estoque: parseInt(localStorage.getItem(`${prefix}Estoque`) || String(ESTOQUE_PADRAO), 10),
+        foto: localStorage.getItem(`${prefix}Foto`) || FOTO_PADRAO,
+        alturaFoto: parseInt(localStorage.getItem(`${prefix}AlturaFoto`) || '180', 10),
+        ajusteFoto: localStorage.getItem(`${prefix}ModoAjuste`) || 'cover'
+    };
+    return true;
+}
+
+function recarregarTodosProdutos() {
+    document.getElementById('listaProdutos').innerHTML = '';
+    let maxId = 0;
+    for (let i = 1; i <= 100; i++) {
+        if (carregarProdutoDoStorage(i)) {
+            document.getElementById('listaProdutos').insertAdjacentHTML('beforeend', criarTemplateProduto(i));
+            maxId = i;
         }
+    }
+    proximoId = maxId + 1;
+}
 
-        function salvarProdutoNoStorage(id) {
-            const p = produtos[id];
-            localStorage.setItem(`produto${id}Nome`, p.nome);
-            localStorage.setItem(`produto${id}PrecoAtual`, p.precoAtual);
-            if (p.precoAntigo !== null) {
-                localStorage.setItem(`produto${id}PrecoAntigo`, p.precoAntigo);
-                localStorage.setItem(`produto${id}TemAntigo`, 'sim');
-            } else {
-                localStorage.setItem(`produto${id}TemAntigo`, 'nao');
-                localStorage.removeItem(`produto${id}PrecoAntigo`);
-            }
-            localStorage.setItem(`produto${id}Estoque`, p.estoque);
-            localStorage.setItem(`produto${id}Foto`, p.foto);
-            localStorage.setItem(`produto${id}AlturaFoto`, p.alturaFoto);
-            localStorage.setItem(`produto${id}ModoAjuste`, p.ajusteFoto);
-            localStorage.setItem('ultimoIdProduto', String(proximoId - 1));
-        }
+function aplicarTamanhoFoto(id) {
+    if (!modoAdmAtivo) return alert('❌ Somente administrador!');
+    const altura = document.getElementById(`alturaFoto${id}`).value;
+    const modo = document.getElementById(`modoAjuste${id}`).value;
+    const container = document.getElementById(`containerFoto${id}`);
+    const img = document.getElementById(`imgProduto${id}`);
+    container.style.height = altura + 'px';
+    img.style.objectFit = modo;
+    produtos[id].alturaFoto = parseInt(altura);
+    produtos[id].ajusteFoto = modo;
+    salvarProdutoNoStorage(id);
+}
 
-        function carregarProdutoDoStorage(id) {
-            const prefix = `produto${id}`;
-            const nome = localStorage.getItem(`${prefix}Nome`);
-            if (!nome) return false;
-            const temAntigo = localStorage.getItem(`${prefix}TemAntigo`) === 'sim';
-            produtos[id] = {
-                nome: nome,
-                precoAtual: parseFloat(localStorage.getItem(`${prefix}PrecoAtual`) || '0'),
-                precoAntigo: temAntigo ? parseFloat(localStorage.getItem(`${prefix}PrecoAntigo`) || '0') : null,
-                estoque: parseInt(localStorage.getItem(`${prefix}Estoque`) || String(ESTOQUE_PADRAO), 10),
-                foto: localStorage.getItem(`${prefix}Foto`) || FOTO_PADRAO,
-                alturaFoto: parseInt(localStorage.getItem(`${prefix}AlturaFoto`) || '180', 10),
-                ajusteFoto: localStorage.getItem(`${prefix}ModoAjuste`) || 'cover'
-            };
-            return true;
-        }
+function adicionarNovoProduto() {
+    if (!modoAdmAtivo) return alert('❌ Acesso restrito!');
+    const nome = prompt('Nome do produto:');
+    if (!nome || !nome.trim()) return;
+    const precoAtual = prompt('Preço atual (ex: 10,00):');
+    if (!precoAtual) return;
+    const precoAntigo = prompt('Preço antigo — DEIXE EM BRANCO SE NÃO TIVER:');
+    if (precoAntigo === null) return;
+    const estoque = prompt('Quantidade em estoque:', ESTOQUE_PADRAO.toString());
+    if (estoque === null) return;
+    const novoId = proximoId++;
+    produtos[novoId] = {
+        nome: nome.trim(),
+        precoAtual: parseFloat(precoAtual.replace(',', '.')),
+        precoAntigo: precoAntigo?.trim() ? parseFloat(precoAntigo.replace(',', '.')) : null,
+        estoque: parseInt(estoque, 10),
+        foto: FOTO_PADRAO,
+        alturaFoto: 180,
+        ajusteFoto: 'cover'
+    };
+    salvarProdutoNoStorage(novoId);
+    document.getElementById('listaProdutos').insertAdjacentHTML('beforeend', criarTemplateProduto(novoId));
+    alert(`✅ "${nome}" adicionado!`);
+}
 
-        function recarregarTodosProdutos() {
-            document.getElementById('listaProdutos').innerHTML = '';
-            let maxId = 0;
-            for (let i = 1; i <= 100; i++) {
-                if (carregarProdutoDoStorage(i)) {
-                    document.getElementById('listaProdutos').insertAdjacentHTML('beforeend', criarTemplateProduto(i));
-                    maxId = i;
-                }
-            }
-            proximoId = maxId + 1;
-        }
+function excluirProduto(id) {
+    if (!modoAdmAtivo) return;
+    if (!confirm(`Excluir "${produtos[id].nome}"?`)) return;
+    document.getElementById(`colunaProduto${id}`).remove();
+    Object.keys(localStorage).forEach(chave => {
+        if (chave.startsWith(`produto${id}`)) localStorage.removeItem(chave);
+    });
+    delete produtos[id];
+    alert('✅ Excluído!');
+}
 
-        function aplicarTamanhoFoto(id) {
-            if (!modoAdmAtivo) return alert('❌ Somente administrador!');
-            const altura = document.getElementById(`alturaFoto${id}`).value;
-            const modo = document.getElementById(`modoAjuste${id}`).value;
-            const container = document.getElementById(`containerFoto${id}`);
-            const img = document.getElementById(`imgProduto${id}`);
-            container.style.height = altura + 'px';
-            img.style.objectFit = modo;
-            produtos[id].alturaFoto = parseInt(altura);
-            produtos[id].ajusteFoto = modo;
-            salvarProdutoNoStorage(id);
-        }
+function editarCampo(elId, id) {
+    if (!modoAdmAtivo) return;
+    const novo = prompt('Novo nome:', produtos[id].nome);
+    if (!novo) return;
+    produtos[id].nome = novo.trim();
+    salvarProdutoNoStorage(id);
+    document.getElementById(elId).textContent = novo;
+}
 
-        function adicionarNovoProduto() {
-            if (!modoAdmAtivo) return alert('❌ Acesso restrito!');
-            const nome = prompt('Nome do produto:');
-            if (!nome || !nome.trim()) return;
-            const precoAtual = prompt('Preço atual (ex: 10,00):');
-            if (!precoAtual) return;
-            const precoAntigo = prompt('Preço antigo — DEIXE EM BRANCO SE NÃO TIVER:');
-            if (precoAntigo === null) return;
-            const estoque = prompt('Quantidade em estoque:', ESTOQUE_PADRAO.toString());
-            if (estoque === null) return;
-            const novoId = proximoId++;
-            produtos[novoId] = {
-                nome: nome.trim(),
-                precoAtual: parseFloat(precoAtual.replace(',', '.')),
-                precoAntigo: precoAntigo?.trim() ? parseFloat(precoAntigo.replace(',', '.')) : null,
-                estoque: parseInt(estoque, 10),
-                foto: FOTO_PADRAO,
-                alturaFoto: 180,
-                ajusteFoto: 'cover'
-            };
-            salvarProdutoNoStorage(novoId);
-            document.getElementById('listaProdutos').insertAdjacentHTML('beforeend', criarTemplateProduto(novoId));
-            alert(`✅ "${nome}" adicionado!`);
-        }
+window.editarPrecos = function(id) {
+    if (!modoAdmAtivo) return;
+    const p = produtos[id];
+    const antigo = prompt('Preço antigo — DEIXE EM BRANCO PARA REMOVER:', 
+        p.precoAntigo ? p.precoAntigo.toFixed(2).replace('.', ',') : '');
+    if (antigo === null) return;
+    const atual = prompt('Preço atual:', p.precoAtual.toFixed(2).replace('.', ','));
+    if (!atual) return;
+    p.precoAntigo = antigo.trim() ? parseFloat(antigo.replace(',', '.')) : null;
+    p.precoAtual = parseFloat(atual.replace(',', '.'));
+    salvarProdutoNoStorage(id);
+    recarregarTodosProdutos();
+};
 
-        function excluirProduto(id) {
-            if (!modoAdmAtivo) return;
-            if (!confirm(`Excluir "${produtos[id].nome}"?`)) return;
-            document.getElementById(`colunaProduto${id}`).remove();
-            Object.keys(localStorage).forEach(chave => {
-                if (chave.startsWith(`produto${id}`)) localStorage.removeItem(chave);
-            });
-            delete produtos[id];
-            alert('✅ Excluído!');
-        }
+function editarEstoque(id) {
+    if (!modoAdmAtivo) return;
+    const qtd = prompt('Nova quantidade:', produtos[id].estoque);
+    if (!qtd) return;
+    produtos[id].estoque = parseInt(qtd);
+    salvarProdutoNoStorage(id);
+    recarregarTodosProdutos();
+}
 
-        function editarCampo(elId, id) {
-            if (!modoAdmAtivo) return;
-            const novo = prompt('Novo nome:', produtos[id].nome);
-            if (!novo) return;
-            produtos[id].nome = novo.trim();
-            salvarProdutoNoStorage(id);
-            document.getElementById(elId).textContent = novo;
-        }
+function trocarFoto(event, imgId, id) {
+    if (!modoAdmAtivo) return alert('Apenas administrador!');
+    const arq = event.target.files[0];
+    if (!arq) return;
+    const leitor = new FileReader();
+    leitor.onload = e => {
+        document.getElementById(imgId).src = e.target.result;
+        produtos[id].foto = e.target.result;
+        salvarProdutoNoStorage(id);
+        alert('✅ Foto atualizada!');
+    };
+    leitor.readAsDataURL(arq);
+    event.target.value = '';
+}
 
-        window.editarPrecos = function(id) {
-            if (!modoAdmAtivo) return;
-            const p = produtos[id];
-            const antigo = prompt('Preço antigo — DEIXE EM BRANCO PARA REMOVER:', 
-                p.precoAntigo ? p.precoAntigo.toFixed(2).replace('.', ',') : '');
-            if (antigo === null) return;
-            const atual = prompt('Preço atual:', p.precoAtual.toFixed(2).replace('.', ','));
-            if (!atual) return;
-            p.precoAntigo = antigo.trim() ? parseFloat(antigo.replace(',', '.')) : null;
-            p.precoAtual = parseFloat(atual.replace(',', '.'));
-            salvarProdutoNoStorage(id);
-            recarregarTodosProdutos();
-        };
+function abrirModalSenhaAdm() {
+    new bootstrap.Modal(document.getElementById('modalSenhaAdm')).show();
+}
 
-        function editarEstoque(id) {
-            if (!modoAdmAtivo) return;
-            const qtd = prompt('Nova quantidade:', produtos[id].estoque);
-            if (!qtd) return;
-            produtos[id].estoque = parseInt(qtd);
-            salvarProdutoNoStorage(id);
-            recarregarTodosProdutos();
-        }
+function verificarSenhaAdm() {
+    if (document.getElementById('senhaAdm').value === SENHA_ADM) {
+        modoAdmAtivo = true;
+        document.body.classList.add('admin-logado');
+        document.getElementById("btnConfigLoja").classList.remove("d-none");
+        carregarConfiguracoes();
+        bootstrap.Modal.getInstance(document.getElementById('modalSenhaAdm')).hide();
+        alert('✅ Modo administrador ativado!');
+    } else {
+        document.getElementById('erroSenha').classList.remove('d-none');
+    }
+}
 
-        function trocarFoto(event, imgId, id) {
-            if (!modoAdmAtivo) return alert('Apenas administrador!');
-            const arq = event.target.files[0];
-            if (!arq) return;
-            const leitor = new FileReader();
-            leitor.onload = e => {
-                document.getElementById(imgId).src = e.target.result;
-                produtos[id].foto = e.target.result;
-                salvarProdutoNoStorage(id);
-                alert('✅ Foto atualizada!');
-            };
-            leitor.readAsDataURL(arq);
-            event.target.value = '';
-        }
+function filtrarProdutos(termo) {
+    termo = termo.toLowerCase().trim();
+    document.querySelectorAll('.produto-card').forEach(card => {
+        const id = card.id.replace('colunaProduto', '');
+        card.style.display = produtos[id].nome.toLowerCase().includes(termo) ? 'block' : 'none';
+    });
+}
 
-        function abrirModalSenhaAdm() {
-            new bootstrap.Modal(document.getElementById('modalSenhaAdm')).show();
-        }
+function abrirModalCompra(id) {
+    produtoAtual = produtos[id];
+    freteSelecionado = { valor: 0, nome: "Retirada no Local" };
+    document.getElementById('nomeProdutoCompra').textContent = produtoAtual.nome;
+    document.getElementById('valorProdutoCompra').textContent = formatarMoeda(produtoAtual.precoAtual);
 
-        function verificarSenhaAdm() {
-            if (document.getElementById('senhaAdm').value === SENHA_ADM) {
-                modoAdmAtivo = true;
-                document.body.classList.add('admin-logado');
-                document.getElementById("btnConfigLoja").classList.remove("d-none");
-                carregarConfiguracoes();
-                bootstrap.Modal.getInstance(document.getElementById('modalSenhaAdm')).hide();
-                alert('✅ Modo administrador ativado!');
-            } else {
-                document.getElementById('erroSenha').classList.remove('d-none');
-            }
-        }
+    document.querySelectorAll('.frete-option').forEach(el => {
+        el.classList.remove('selected');
+        el.querySelector('input').checked = false;
+    });
+    document.querySelector('.frete-option[data-valor="0"]').classList.add('selected');
+    document.querySelector('#frete1').checked = true;
 
-        function filtrarProdutos(termo) {
-            termo = termo.toLowerCase().trim();
-            document.querySelectorAll('.produto-card').forEach(card => {
-                const id = card.id.replace('colunaProduto', '');
-                card.style.display = produtos[id].nome.toLowerCase().includes(termo) ? 'block' : 'none';
-            });
-        }
+    calcularTotal();
+    atualizarExibicaoDados();
+    new bootstrap.Modal(document.getElementById('modalCompra')).show();
+}
 
-        function abrirModalCompra(id) {
-            produtoAtual = produtos[id];
-            freteSelecionado = { valor: 0, nome: "Retirada no Local" };
-            document.getElementById('nomeProdutoCompra').textContent = produtoAtual.nome;
-            document.getElementById('valorProdutoCompra').textContent = formatarMoeda(produtoAtual.precoAtual);
+function selecionarFrete(elemento) {
+    document.querySelectorAll('.frete-option').forEach(el => {
+        el.classList.remove('selected');
+        el.querySelector('input').checked = false;
+    });
+    elemento.classList.add('selected');
+    elemento.querySelector('input').checked = true;
+    freteSelecionado.valor = parseFloat(elemento.dataset.valor);
+    freteSelecionado.nome = elemento.dataset.nome;
+    calcularTotal();
+}
 
-            document.querySelectorAll('.frete-option').forEach(el => {
-                el.classList.remove('selected');
-                el.querySelector('input').checked = false;
-            });
-            document.querySelector('.frete-option[data-valor="0"]').classList.add('selected');
-            document.querySelector('#frete1').checked = true;
+function calcularTotal() {
+    totalCompra = produtoAtual.precoAtual + freteSelecionado.valor;
+    document.getElementById('subtotalCompra').textContent = formatarMoeda(produtoAtual.precoAtual);
+    document.getElementById('valorFreteSelecionado').textContent = formatarMoeda(freteSelecionado.valor);
+    document.getElementById('totalCompra').textContent = formatarMoeda(totalCompra);
+    document.getElementById('valorPix').textContent = formatarMoeda(totalCompra * (1 - DESCONTO_PIX));
+    atualizarExibicaoDados();
+}
 
-            calcularTotal();
-            atualizarExibicaoDados();
-            new bootstrap.Modal(document.getElementById('modalCompra')).show();
-        }
+function adicionarAoCarrinho(id) {
+  const p = produtos[id];
+  carrinho.push({ id: id, nome: p.nome, preco: p.precoAtual });
+  alert(`✅ "${p.nome}" adicionado ao carrinho!`);
+  atualizarCarrinho();
+}
 
-        function selecionarFrete(elemento) {
-            document.querySelectorAll('.frete-option').forEach(el => {
-                el.classList.remove('selected');
-                el.querySelector('input').checked = false;
-            });
-            elemento.classList.add('selected');
-            elemento.querySelector('input').checked = true;
-            freteSelecionado.valor = parseFloat(elemento.dataset.valor);
-            freteSelecionado.nome = elemento.dataset.nome;
-            calcularTotal();
-        }
+function atualizarCarrinho() {
+    const secao = document.getElementById('secaoCarrinho');
+    const lista = document.getElementById('listaCarrinho');
+    const totalElement = document.getElementById('totalCarrinho');
 
-        function calcularTotal() {
-            totalCompra = produtoAtual.precoAtual + freteSelecionado.valor;
-            document.getElementById('subtotalCompra').textContent = formatarMoeda(produtoAtual.precoAtual);
-            document.getElementById('valorFreteSelecionado').textContent = formatarMoeda(freteSelecionado.valor);
-            document.getElementById('totalCompra').textContent = formatarMoeda(totalCompra);
-            document.getElementById('valorPix').textContent = formatarMoeda(totalCompra * (1 - DESCONTO_PIX));
-            atualizarExibicaoDados();
-        }
+    if (carrinho.length === 0) {
+        secao.classList.add('d-none');
+        return;
+    }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            carregarFundoCabecalho();
-            carregarConfiguracoes();
-            const ultimoId = parseInt(localStorage.getItem('ultimoIdProduto') || '0', 10);
-            proximoId = ultimoId + 1;
-            for (let id = 1; id <= ultimoId; id++) {
-                if (carregarProdutoDoStorage(id)) {
-                    document.getElementById('listaProdutos').insertAdjacentHTML('beforeend', criarTemplateProduto(id));
-                }
-            }
-        });
-    </script>
+    secao.classList.remove('d-none');
+    lista.innerHTML = '';
+    let total = 0;
+
+    carrinho.forEach((item, indice) => {
+        const subtotal = item.preco;
+        total += subtotal;
+        lista.innerHTML += `
+        <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+            <div>
+                <h6 class="mb-0">${item.nome}</h6>
+                <small class="text-muted">${formatarMoeda(item.preco)}</small>
+            </div>
+            <button class="btn btn-sm btn-outline-danger" onclick="removerDoCarrinho(${indice})">
+                <i class="bi bi-trash"></i>
+            </button>
+        </div>`;
+    });
+
+    totalElement.textContent = formatarMoeda(total);
+}
+
+function removerDoCarrinho(indice) {
+    carrinho.splice(indice, 1);
+    atualizarCarrinho();
+}
+
+function finalizarCompraCarrinho() {
+    if (carrinho.length === 0) return alert('Carrinho vazio!');
+    abrirModalCompra(0);
+}
+
+// ========== INICIALIZAÇÃO ==========
+document.addEventListener('DOMContentLoaded', function() {
+    recarregarTodosProdutos();
+    verificarLinkAutomatico();
+    
+    // Botão de configurações — aparece só pro admin
+    if (modoAdmAtivo) {
+        document.getElementById("btnConfigLoja").classList.remove("d-none");
+    }
+    
+    // Campo de busca
+    const busca = document.getElementById('campoBusca');
+    if (busca) {
+        busca.addEventListener('input', e => filtrarProdutos(e.target.value));
+    }
+});
+</script>
 </body>
 </html>
+
