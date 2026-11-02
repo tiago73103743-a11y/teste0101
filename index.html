@@ -208,33 +208,38 @@
 </head>
 <body>
 
-    <!-- 🔐 ÁREA DE LOGIN -->
-    <section class="py-3">
-        <div class="container">
-            <div id="areaLogin" class="login-card card p-4">
-                <div class="form-login">
-                    <h5 class="text-center mb-3"><i class="bi bi-box-arrow-in-right me-2"></i>Acesso</h5>
-                    <div class="mb-3">
-                        <label class="form-label">Seu e-mail</label>
-                        <input type="email" id="emailLogin" class="form-control" placeholder="seu@email.com">
-                    </div>
-                    <button class="btn btn-success w-100" onclick="enviarLinkLogin()">
-                        <i class="bi bi-send me-1"></i> Enviar link de acesso
-                    </button>
-                    <p class="text-muted small mt-3 text-center">
-                        Você vai receber um link no e-mail — é só clicar e entrar!
-                    </p>
+   <!-- 🔐 ÁREA DE LOGIN -->
+<section class="py-3">
+    <div class="container">
+        <div id="areaLogin" class="login-card card p-4">
+            
+            <!-- NÃO LOGADO — digita e-mail -->
+            <div class="form-login" id="telaEntrada">
+                <h5 class="text-center mb-3"><i class="bi bi-box-arrow-in-right me-2"></i>Acesso</h5>
+                <div class="mb-3">
+                    <label class="form-label">Seu e-mail</label>
+                    <input type="email" id="emailLogin" class="form-control" placeholder="seu@email.com">
                 </div>
-                <div class="usuario-logado text-center">
-                    <h6 class="mb-2">Bem-vindo(a)! ✅</h6>
-                    <p id="emailUsuario" class="text-muted mb-3"></p>
-                    <button class="btn btn-outline-danger" onclick="sairLogin()">
-                        <i class="bi bi-box-arrow-right me-1"></i> Sair
-                    </button>
-                </div>
+                <button class="btn btn-success w-100" onclick="enviarLinkLogin()">
+                    <i class="bi bi-send me-1"></i> Entrar / Cadastrar
+                </button>
+                <p class="text-muted small mt-3 text-center">
+                    Vai receber um acesso no e-mail — é só clicar e entrar!
+                </p>
+            </div>
+
+            <!-- JÁ LOGADO — entra direto sem pedir nada -->
+            <div class="usuario-logado text-center">
+                <h6 class="mb-2">Bem-vindo(a)! ✅</h6>
+                <p id="emailUsuario" class="text-muted mb-3"></p>
+                <button class="btn btn-outline-danger" onclick="sairLogin()">
+                    <i class="bi bi-box-arrow-right me-1"></i> Sair
+                </button>
             </div>
         </div>
-    </section>
+    </div>
+</section>
+
 
     <div class="admin-secreto" onclick="abrirModalSenhaAdm()"></div>
     <a href="https://wa.me/5531973124354" target="_blank" class="whatsapp-float" title="Fale pelo WhatsApp">
@@ -485,57 +490,38 @@
             pix: { chave: "", nome: "", qrCodeImagem: "" }
         };
 
-        // ========== LOGIN FIREBASE ==========
-        function enviarLinkLogin() {
-            const email = document.getElementById('emailLogin').value.trim();
-            if (!email) return alert('Digite seu e-mail!');
+        <!-- 🔐 ÁREA DE LOGIN -->
+<section class="py-3">
+    <div class="container">
+        <div id="areaLogin" class="login-card card p-4">
             
-            const actionCodeSettings = {
-                url: window.location.href,
-                handleCodeInApp: true
-            };
+            <!-- NÃO LOGADO — digita e-mail -->
+            <div class="form-login" id="telaEntrada">
+                <h5 class="text-center mb-3"><i class="bi bi-box-arrow-in-right me-2"></i>Acesso</h5>
+                <div class="mb-3">
+                    <label class="form-label">Seu e-mail</label>
+                    <input type="email" id="emailLogin" class="form-control" placeholder="seu@email.com">
+                </div>
+                <button class="btn btn-success w-100" onclick="enviarLinkLogin()">
+                    <i class="bi bi-send me-1"></i> Entrar / Cadastrar
+                </button>
+                <p class="text-muted small mt-3 text-center">
+                    Vai receber um acesso no e-mail — é só clicar e entrar!
+                </p>
+            </div>
 
-            firebase.auth().sendSignInLinkToEmail(email, actionCodeSettings)
-                .then(() => {
-                    window.localStorage.setItem('emailParaLogin', email);
-                    alert('✅ Link enviado! Verifique sua caixa de entrada e clique no link para entrar!');
-                })
-                .catch(erro => {
-                    console.error(erro);
-                    alert('Erro ao enviar: ' + erro.message);
-                });
-        }
+            <!-- JÁ LOGADO — entra direto sem pedir nada -->
+            <div class="usuario-logado text-center">
+                <h6 class="mb-2">Bem-vindo(a)! ✅</h6>
+                <p id="emailUsuario" class="text-muted mb-3"></p>
+                <button class="btn btn-outline-danger" onclick="sairLogin()">
+                    <i class="bi bi-box-arrow-right me-1"></i> Sair
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
 
-        function verificarLinkAutomatico() {
-            if (firebase.auth().isSignInWithEmailLink(window.location.href)) {
-                let email = window.localStorage.getItem('emailParaLogin');
-                if (!email) {
-                    email = prompt('Confirme seu e-mail:');
-                }
-                firebase.auth().signInWithEmailLink(email, window.location.href)
-                    .then(result => {
-                        window.localStorage.removeItem('emailParaLogin');
-                        atualizarTelaLogin(result.user);
-                    })
-                    .catch(erro => console.error('Erro login:', erro));
-            }
-        }
-
-        function sairLogin() {
-            firebase.auth().signOut().then(() => {
-                document.body.classList.remove('logado');
-                alert('✅ Saiu com sucesso!');
-            });
-        }
-
-        function atualizarTelaLogin(usuario) {
-            if (usuario) {
-                document.body.classList.add('logado');
-                document.getElementById('emailUsuario').textContent = usuario.email;
-            } else {
-                document.body.classList.remove('logado');
-            }
-        }
 
         firebase.auth().onAuthStateChanged(atualizarTelaLogin);
 
